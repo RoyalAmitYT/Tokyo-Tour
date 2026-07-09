@@ -31,8 +31,8 @@
 ===================================================== */
 (function (global) {
 
-  const SESSION_KEY   = 'tt_session';        // Supabase: managed internally by supabase-js
-  const USERS_KEY      = 'tt_mock_users';      // mock "auth.users" table — delete once Supabase Auth is wired
+  const SESSION_KEY = 'tt_session';        // Supabase: managed internally by supabase-js
+  const USERS_KEY = 'tt_mock_users';      // mock "auth.users" table — delete once Supabase Auth is wired
   const PENDING_TRIP_KEY = 'tt_pending_trip_id';
 
   /* ---------- tiny helpers ---------- */

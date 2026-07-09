@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const progress = document.getElementById('scrollProgress');
   const backToTop = document.getElementById('backToTop');
 
-  function onScroll(){
+  function onScroll() {
     const y = window.scrollY;
     header && header.classList.toggle('is-scrolled', y > 40);
     backToTop && backToTop.classList.toggle('is-visible', y > 600);
@@ -59,11 +59,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const pct = docHeight > 0 ? (y / docHeight) * 100 : 0;
     if (progress) progress.style.width = pct + '%';
   }
-  document.addEventListener('scroll', onScroll, { passive:true });
+  document.addEventListener('scroll', onScroll, { passive: true });
   onScroll();
 
   backToTop && backToTop.addEventListener('click', () => {
-    window.scrollTo({ top:0, behavior:'smooth' });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   });
 
   /* ---------- Mobile nav drawer ---------- */
@@ -71,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const mobileNav = document.getElementById('mobileNav');
   const mobileNavBackdrop = document.getElementById('mobileNavBackdrop');
 
-  function closeMobileNav(){
+  function closeMobileNav() {
     mobileNav && mobileNav.classList.remove('is-open');
     mobileNavBackdrop && mobileNavBackdrop.classList.remove('is-open');
     hamburgerBtn && hamburgerBtn.classList.remove('is-active');
@@ -98,7 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const searchInput = document.getElementById('searchInput');
 
   searchToggle && searchToggle.setAttribute('aria-expanded', 'false');
-  function closeSearchOverlay(){
+  function closeSearchOverlay() {
     searchOverlay && searchOverlay.classList.remove('is-open');
     searchToggle && searchToggle.setAttribute('aria-expanded', 'false');
     searchToggle && searchToggle.focus();
@@ -127,7 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
       e.preventDefault();
       const offset = 90;
       const top = target.getBoundingClientRect().top + window.scrollY - offset;
-      window.scrollTo({ top, behavior:'smooth' });
+      window.scrollTo({ top, behavior: 'smooth' });
     });
   });
 
@@ -140,7 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
         io.unobserve(entry.target);
       }
     });
-  }, { threshold:0.15 });
+  }, { threshold: 0.15 });
   animatedEls.forEach((el, i) => {
     el.style.transitionDelay = (i % 4) * 0.08 + 's';
     io.observe(el);
@@ -148,7 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /* ---------- Hero slide indicator (decorative auto-cycle) ---------- */
   const slideItems = document.querySelectorAll('.hero__slides-list li');
-  if (slideItems.length){
+  if (slideItems.length) {
     let current = 2; // matches "03" active in reference
     setInterval(() => {
       slideItems[current].classList.remove('is-active');
@@ -184,18 +184,18 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     const dots = Array.from(testiDotsWrap.children);
 
-    function render(){
+    function render() {
       testiTrack.style.transform = `translateX(-${index * 100}%)`;
       dots.forEach((d, i) => d.classList.toggle('is-active', i === index));
     }
-    function goTo(i){
+    function goTo(i) {
       index = (i + slides.length) % slides.length;
       render();
       restartAutoplay();
     }
-    function next(){ goTo(index + 1); }
-    function prev(){ goTo(index - 1); }
-    function restartAutoplay(){
+    function next() { goTo(index + 1); }
+    function prev() { goTo(index - 1); }
+    function restartAutoplay() {
       clearInterval(autoplayId);
       autoplayId = setInterval(next, 6000);
     }
@@ -281,7 +281,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /* ---- 2. Helpers ---- */
-    const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
     function parseISO(iso) {
       const [y, m, d] = iso.split('-').map(Number);
@@ -304,7 +304,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return '$' + Math.round(n).toLocaleString('en-US');
     }
     function escapeHtml(str) {
-      return String(str).replace(/[&<>"']/g, (c) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+      return String(str).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
     }
 
     /* ---- 3. Render Upcoming Trips (grouped by month, alternating layout) ---- */

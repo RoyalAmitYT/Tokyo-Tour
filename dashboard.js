@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const panels = document.querySelectorAll('.dash__panel');
   const sidebar = document.querySelector('.dash__sidebar');
 
-  function activateTab(tab){
+  function activateTab(tab) {
     navLinks.forEach(l => l.classList.toggle('is-active', l.dataset.tab === tab));
     panels.forEach(p => p.classList.toggle('is-active', p.dataset.panel === tab));
     sidebar.classList.remove('is-open');
@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   /* ---------- Render profile / sidebar identity from session ---------- */
-  function renderIdentity(){
+  function renderIdentity() {
     const avatarUrl = currentUser.avatar_url || 'https://randomuser.me/api/portraits/women/68.jpg';
     const name = currentUser.full_name || currentUser.email;
 
@@ -116,9 +116,9 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   /* ---------- Upcoming bookings (from BookingsService) ---------- */
-  function bookingCardHtml(booking, trip){
+  function bookingCardHtml(booking, trip) {
     const statusMap = {
-      pending:   { cls: 'dash-status--pending',   label: 'Payment Pending' },
+      pending: { cls: 'dash-status--pending', label: 'Payment Pending' },
       confirmed: { cls: 'dash-status--confirmed', label: 'Confirmed' },
       cancelled: { cls: 'dash-status--cancelled', label: 'Cancelled' }
     };
@@ -126,7 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const actionLabel = booking.payment_status === 'paid' ? 'Manage' : 'Complete Payment';
     const actionClass = booking.payment_status === 'paid' ? 'btn--outline' : 'btn--primary';
     const dateRange = trip
-      ? `${new Date(trip.start_date).toLocaleDateString('en-US', { month:'short', day:'numeric' })} – ${new Date(trip.end_date).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' })}`
+      ? `${new Date(trip.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – ${new Date(trip.end_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`
       : '';
     const travelers = `${booking.travelers.adults} Adult${booking.travelers.adults === 1 ? '' : 's'}`;
 
@@ -148,7 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
       </article>`;
   }
 
-  async function renderUpcomingBookings(){
+  async function renderUpcomingBookings() {
     const list = document.getElementById('upcomingBookingsList');
     if (!list || !window.TokyoTourData) return;
 
@@ -166,7 +166,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderUpcomingBookings();
 
   /* ---------- Wishlist / Saved Tours (from WishlistService) ---------- */
-  function miniCardHtml(item, kind){
+  function miniCardHtml(item, kind) {
     if (kind === 'saved') {
       return `
         <article class="dash-mini-card dash-mini-card--wide" data-id="${item.id}">
@@ -190,7 +190,7 @@ document.addEventListener('DOMContentLoaded', () => {
       </article>`;
   }
 
-  async function renderWishlistGrid(gridId, emptyId, kind){
+  async function renderWishlistGrid(gridId, emptyId, kind) {
     const grid = document.getElementById(gridId);
     const empty = document.getElementById(emptyId);
     if (!grid || !window.TokyoTourData) return;
@@ -227,9 +227,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const confirmInput = document.getElementById('st-confirm');
     const passwordNote = document.getElementById('passwordNote');
 
-    function setErr(fieldEl, errId, msg){
+    function setErr(fieldEl, errId, msg) {
       const errEl = document.getElementById(errId);
-      if (msg){ fieldEl.closest('.form-field').classList.add('has-error'); errEl.textContent = msg; }
+      if (msg) { fieldEl.closest('.form-field').classList.add('has-error'); errEl.textContent = msg; }
       else { fieldEl.closest('.form-field').classList.remove('has-error'); errEl.textContent = ''; }
     }
 
@@ -237,16 +237,16 @@ document.addEventListener('DOMContentLoaded', () => {
       e.preventDefault();
       let valid = true;
 
-      if (!currentInput.value){ setErr(currentInput, 'st-current-error', 'Enter your current password.'); valid = false; }
+      if (!currentInput.value) { setErr(currentInput, 'st-current-error', 'Enter your current password.'); valid = false; }
       else setErr(currentInput, 'st-current-error', '');
 
-      if (!newInput.value || newInput.value.length < 6){ setErr(newInput, 'st-new-error', 'Minimum 6 characters.'); valid = false; }
+      if (!newInput.value || newInput.value.length < 6) { setErr(newInput, 'st-new-error', 'Minimum 6 characters.'); valid = false; }
       else setErr(newInput, 'st-new-error', '');
 
-      if (confirmInput.value !== newInput.value || !confirmInput.value){ setErr(confirmInput, 'st-confirm-error', 'Passwords do not match.'); valid = false; }
+      if (confirmInput.value !== newInput.value || !confirmInput.value) { setErr(confirmInput, 'st-confirm-error', 'Passwords do not match.'); valid = false; }
       else setErr(confirmInput, 'st-confirm-error', '');
 
-      if (!valid){ passwordNote.textContent = ''; return; }
+      if (!valid) { passwordNote.textContent = ''; return; }
 
       // Backend integration point:
       //   await supabase.auth.updateUser({ password: newInput.value });

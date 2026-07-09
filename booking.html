@@ -1,208 +1,233 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Reserve Your Seat — Tokyo Tour</title>
-<meta name="description" content="Browse Tokyo Tour's scheduled departures and reserve your seat on a premium guided tour across Japan.">
-<meta name="robots" content="index, follow">
-<meta name="theme-color" content="#0b0d12">
-<link rel="canonical" href="https://www.tokyotour.travel/booking.html">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reserve Your Seat — Tokyo Tour</title>
+  <meta name="description"
+    content="Browse Tokyo Tour's scheduled departures and reserve your seat on a premium guided tour across Japan.">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#0b0d12">
+  <link rel="canonical" href="https://www.tokyotour.travel/booking.html">
 
-<!-- Open Graph -->
-<meta property="og:type" content="website">
-<meta property="og:site_name" content="Tokyo Tour">
-<meta property="og:title" content="Reserve Your Seat — Tokyo Tour">
-<meta property="og:description" content="Browse Tokyo Tour's scheduled departures and reserve your seat on a premium guided tour across Japan.">
-<meta property="og:image" content="https://www.tokyotour.travel/images/japan_torri_gate.jpg">
-<meta property="og:url" content="https://www.tokyotour.travel/booking.html">
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Tokyo Tour">
+  <meta property="og:title" content="Reserve Your Seat — Tokyo Tour">
+  <meta property="og:description"
+    content="Browse Tokyo Tour's scheduled departures and reserve your seat on a premium guided tour across Japan.">
+  <meta property="og:image" content="https://www.tokyotour.travel/images/japan_torri_gate.jpg">
+  <meta property="og:url" content="https://www.tokyotour.travel/booking.html">
 
-<!-- Twitter Card -->
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Reserve Your Seat — Tokyo Tour">
-<meta name="twitter:description" content="Browse Tokyo Tour's scheduled departures and reserve your seat on a premium guided tour across Japan.">
-<meta name="twitter:image" content="https://www.tokyotour.travel/images/japan_torri_gate.jpg">
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Reserve Your Seat — Tokyo Tour">
+  <meta name="twitter:description"
+    content="Browse Tokyo Tour's scheduled departures and reserve your seat on a premium guided tour across Japan.">
+  <meta name="twitter:image" content="https://www.tokyotour.travel/images/japan_torri_gate.jpg">
 
-<!-- Favicons (placeholders — see summary) -->
-<link rel="icon" href="favicon.ico" sizes="any">
-<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <!-- Favicons (placeholders — see summary) -->
+  <link rel="icon" href="favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap"
+    rel="stylesheet">
 
-<link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css">
 </head>
+
 <body class="booking-body">
 
-<header class="booking-header">
-  <a href="index.html" class="brand">
-    <span class="brand__dot"></span>
-    <span class="brand__name">TOKYO<span class="brand__name-thin">TOUR</span></span>
-  </a>
-  <a href="index.html" class="auth__back"><span aria-hidden="true">←</span> Back to site</a>
-</header>
+  <header class="booking-header">
+    <a href="index.html" class="brand">
+      <span class="brand__dot"></span>
+      <span class="brand__name">TOKYO<span class="brand__name-thin">TOUR</span></span>
+    </a>
+    <a href="index.html" class="auth__back"><span aria-hidden="true">←</span> Back to site</a>
+  </header>
 
-<section class="booking-hero">
-  <p class="section-eyebrow">scheduled departures</p>
-  <h1 class="section-title">Upcoming Trips</h1>
-  <p class="booking-hero__sub">Every Tokyo Tour departure is planned and guided by us — simply choose a scheduled trip below and reserve your seat. No dates to figure out, no guesswork.</p>
-</section>
+  <section class="booking-hero">
+    <p class="section-eyebrow">scheduled departures</p>
+    <h1 class="section-title">Upcoming Trips</h1>
+    <p class="booking-hero__sub">Every Tokyo Tour departure is planned and guided by us — simply choose a scheduled trip
+      below and reserve your seat. No dates to figure out, no guesswork.</p>
+  </section>
 
-<!-- ================= UPCOMING TRIPS ================= -->
-<section class="trips-section" id="upcomingTrips">
-  <div class="trips-section__inner" id="tripsContainer">
-    <!-- Month groups + trip cards are rendered here by booking.js -->
-  </div>
-</section>
+  <!-- ================= UPCOMING TRIPS ================= -->
+  <section class="trips-section" id="upcomingTrips">
+    <div class="trips-section__inner" id="tripsContainer">
+      <!-- Month groups + trip cards are rendered here by booking.js -->
+    </div>
+  </section>
 
-<!-- ================= RESERVE / BOOKING FORM ================= -->
-<section class="reserve-section" id="reserveSection">
+  <!-- ================= RESERVE / BOOKING FORM ================= -->
+  <section class="reserve-section" id="reserveSection">
 
-  <div class="reserve-section__head">
-    <p class="section-eyebrow">secure your place</p>
-    <h2 class="section-title">Complete Your Reservation</h2>
-  </div>
-
-  <div class="booking-layout">
-
-    <form class="booking-form" id="bookingForm" novalidate>
-
-      <div class="form-field" id="bk-trip-field">
-        <label for="bk-trip">Selected Trip</label>
-        <input type="text" id="bk-trip" name="trip" readonly placeholder="Choose a trip from Upcoming Trips above">
-        <span class="form-error" id="bk-trip-error"></span>
-      </div>
-
-      <div class="auth-form__row--3col">
-        <div class="form-field" id="bk-adults-field">
-          <label for="bk-adults">Adults</label>
-          <input type="number" id="bk-adults" name="adults" min="1" max="12" value="2">
-          <span class="form-error" id="bk-adults-error"></span>
-        </div>
-        <div class="form-field" id="bk-children-field">
-          <label for="bk-children">Children</label>
-          <input type="number" id="bk-children" name="children" min="0" max="12" value="0">
-          <span class="form-error" id="bk-children-error"></span>
-        </div>
-        <div class="form-field" id="bk-seats-field">
-          <label for="bk-seats">Seat Quantity</label>
-          <input type="number" id="bk-seats" name="seats" min="1" max="24" value="2">
-          <span class="form-error" id="bk-seats-error"></span>
-        </div>
-      </div>
-
-      <div class="form-field" id="bk-coupon-field">
-        <label for="bk-coupon">Coupon Code <span class="form-field__optional">(optional)</span></label>
-        <input type="text" id="bk-coupon" name="coupon" placeholder="e.g. TOKYO10">
-        <span class="form-error" id="bk-coupon-error"></span>
-        <span class="form-hint" id="bk-coupon-hint"></span>
-      </div>
-
-      <div class="form-field" id="bk-requests-field">
-        <label for="bk-requests">Special Requests <span class="form-field__optional">(optional)</span></label>
-        <textarea id="bk-requests" name="requests" rows="4" placeholder="Dietary needs, accessibility, celebration occasions..."></textarea>
-      </div>
-
-      <button type="submit" class="btn btn--primary auth-submit">Reserve Seat</button>
-    </form>
-
-    <aside class="booking-summary" id="bookingSummary">
-      <h3>Trip Summary</h3>
-
-      <div class="booking-summary__dest" id="summaryDestWrap">
-        <img id="summaryDestImg" src="images/japan.jpg" alt="Selected trip destination preview" loading="lazy">
-        <div class="booking-summary__dest-scrim"></div>
-        <span class="booking-summary__dest-name" id="summaryDestName">Choose a trip</span>
-      </div>
-
-      <ul class="booking-summary__lines">
-        <li><span>Tour</span><strong id="summaryPackage">—</strong></li>
-        <li><span>Departure Dates</span><strong id="summaryDates">—</strong></li>
-        <li><span>Trip Length</span><strong id="summaryNights">—</strong></li>
-        <li><span>Travelers</span><strong id="summaryTravelers">2 Adults</strong></li>
-        <li><span>Seats</span><strong id="summarySeats">2</strong></li>
-      </ul>
-
-      <div class="booking-summary__price">
-        <div class="booking-summary__price-row"><span>Subtotal</span><span id="summarySubtotal">$0</span></div>
-        <div class="booking-summary__price-row booking-summary__price-row--discount" id="summaryDiscountRow" style="display:none;">
-          <span>Coupon Discount</span><span id="summaryDiscount">-$0</span>
-        </div>
-        <div class="booking-summary__price-row booking-summary__price-row--total">
-          <span>Estimated Total</span><span id="summaryTotal">$0</span>
-        </div>
-      </div>
-
-      <ul class="booking-summary__trust">
-        <li>Free cancellation up to 30 days before departure</li>
-        <li>Licensed local guides on every itinerary</li>
-        <li>Small groups, capped at 10 travelers</li>
-      </ul>
-    </aside>
-
-  </div>
-</section>
-
-<!-- ================= CONFIRMATION MODAL ================= -->
-<div class="modal" id="confirmationModal" aria-hidden="true">
-  <div class="modal__backdrop" id="modalBackdrop"></div>
-  <div class="modal__panel" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-    <button class="modal__close" id="modalClose" aria-label="Close confirmation">
-      <svg viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-    </button>
-
-    <div class="modal__icon">
-      <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.6"/><path d="M8 12.5l2.5 2.5L16 9.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <div class="reserve-section__head">
+      <p class="section-eyebrow">secure your place</p>
+      <h2 class="section-title">Complete Your Reservation</h2>
     </div>
 
-    <h2 id="modalTitle">Booking Confirmed!</h2>
-    <p class="modal__sub">Your seats are reserved. A confirmation email is on its way to your registered address.</p>
+    <div class="booking-layout">
 
-    <div class="modal__ref" id="modalRef">Booking Reference: TT-000000</div>
+      <form class="booking-form" id="bookingForm" novalidate>
 
-    <div class="modal__details">
-      <div class="modal__detail-row"><span>Destination</span><strong id="modalDestination">—</strong></div>
-      <div class="modal__detail-row"><span>Tour</span><strong id="modalPackage">—</strong></div>
-      <div class="modal__detail-row"><span>Departure Dates</span><strong id="modalDates">—</strong></div>
-      <div class="modal__detail-row"><span>Travelers</span><strong id="modalTravelers">—</strong></div>
-      <div class="modal__detail-row"><span>Seats Reserved</span><strong id="modalSeats">—</strong></div>
-      <div class="modal__detail-row modal__detail-row--total"><span>Amount Due</span><strong id="modalTotal">—</strong></div>
+        <div class="form-field" id="bk-trip-field">
+          <label for="bk-trip">Selected Trip</label>
+          <input type="text" id="bk-trip" name="trip" readonly placeholder="Choose a trip from Upcoming Trips above">
+          <span class="form-error" id="bk-trip-error"></span>
+        </div>
+
+        <div class="auth-form__row--3col">
+          <div class="form-field" id="bk-adults-field">
+            <label for="bk-adults">Adults</label>
+            <input type="number" id="bk-adults" name="adults" min="1" max="12" value="2">
+            <span class="form-error" id="bk-adults-error"></span>
+          </div>
+          <div class="form-field" id="bk-children-field">
+            <label for="bk-children">Children</label>
+            <input type="number" id="bk-children" name="children" min="0" max="12" value="0">
+            <span class="form-error" id="bk-children-error"></span>
+          </div>
+          <div class="form-field" id="bk-seats-field">
+            <label for="bk-seats">Seat Quantity</label>
+            <input type="number" id="bk-seats" name="seats" min="1" max="24" value="2">
+            <span class="form-error" id="bk-seats-error"></span>
+          </div>
+        </div>
+
+        <div class="form-field" id="bk-coupon-field">
+          <label for="bk-coupon">Coupon Code <span class="form-field__optional">(optional)</span></label>
+          <input type="text" id="bk-coupon" name="coupon" placeholder="e.g. TOKYO10">
+          <span class="form-error" id="bk-coupon-error"></span>
+          <span class="form-hint" id="bk-coupon-hint"></span>
+        </div>
+
+        <div class="form-field" id="bk-requests-field">
+          <label for="bk-requests">Special Requests <span class="form-field__optional">(optional)</span></label>
+          <textarea id="bk-requests" name="requests" rows="4"
+            placeholder="Dietary needs, accessibility, celebration occasions..."></textarea>
+        </div>
+
+        <button type="submit" class="btn btn--primary auth-submit">Reserve Seat</button>
+      </form>
+
+      <aside class="booking-summary" id="bookingSummary">
+        <h3>Trip Summary</h3>
+
+        <div class="booking-summary__dest" id="summaryDestWrap">
+          <img id="summaryDestImg" src="images/japan.jpg" alt="Selected trip destination preview" loading="lazy">
+          <div class="booking-summary__dest-scrim"></div>
+          <span class="booking-summary__dest-name" id="summaryDestName">Choose a trip</span>
+        </div>
+
+        <ul class="booking-summary__lines">
+          <li><span>Tour</span><strong id="summaryPackage">—</strong></li>
+          <li><span>Departure Dates</span><strong id="summaryDates">—</strong></li>
+          <li><span>Trip Length</span><strong id="summaryNights">—</strong></li>
+          <li><span>Travelers</span><strong id="summaryTravelers">2 Adults</strong></li>
+          <li><span>Seats</span><strong id="summarySeats">2</strong></li>
+        </ul>
+
+        <div class="booking-summary__price">
+          <div class="booking-summary__price-row"><span>Subtotal</span><span id="summarySubtotal">$0</span></div>
+          <div class="booking-summary__price-row booking-summary__price-row--discount" id="summaryDiscountRow"
+            style="display:none;">
+            <span>Coupon Discount</span><span id="summaryDiscount">-$0</span>
+          </div>
+          <div class="booking-summary__price-row booking-summary__price-row--total">
+            <span>Estimated Total</span><span id="summaryTotal">$0</span>
+          </div>
+        </div>
+
+        <ul class="booking-summary__trust">
+          <li>Free cancellation up to 30 days before departure</li>
+          <li>Licensed local guides on every itinerary</li>
+          <li>Small groups, capped at 10 travelers</li>
+        </ul>
+      </aside>
+
     </div>
+  </section>
 
-    <div class="modal__actions">
-      <a href="index.html" class="btn btn--primary">Back to Home</a>
-      <button type="button" class="btn btn--outline" id="modalCloseBtn">Close</button>
+  <!-- ================= CONFIRMATION MODAL ================= -->
+  <div class="modal" id="confirmationModal" aria-hidden="true">
+    <div class="modal__backdrop" id="modalBackdrop"></div>
+    <div class="modal__panel" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <button class="modal__close" id="modalClose" aria-label="Close confirmation">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+        </svg>
+      </button>
+
+      <div class="modal__icon">
+        <svg viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.6" />
+          <path d="M8 12.5l2.5 2.5L16 9.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+            stroke-linejoin="round" />
+        </svg>
+      </div>
+
+      <h2 id="modalTitle">Booking Confirmed!</h2>
+      <p class="modal__sub">Your seats are reserved. A confirmation email is on its way to your registered address.</p>
+
+      <div class="modal__ref" id="modalRef">Booking Reference: TT-000000</div>
+
+      <div class="modal__details">
+        <div class="modal__detail-row"><span>Destination</span><strong id="modalDestination">—</strong></div>
+        <div class="modal__detail-row"><span>Tour</span><strong id="modalPackage">—</strong></div>
+        <div class="modal__detail-row"><span>Departure Dates</span><strong id="modalDates">—</strong></div>
+        <div class="modal__detail-row"><span>Travelers</span><strong id="modalTravelers">—</strong></div>
+        <div class="modal__detail-row"><span>Seats Reserved</span><strong id="modalSeats">—</strong></div>
+        <div class="modal__detail-row modal__detail-row--total"><span>Amount Due</span><strong
+            id="modalTotal">—</strong></div>
+      </div>
+
+      <div class="modal__actions">
+        <a href="index.html" class="btn btn--primary">Back to Home</a>
+        <button type="button" class="btn btn--outline" id="modalCloseBtn">Close</button>
+      </div>
     </div>
   </div>
-</div>
 
-<!-- ================= LOGIN REQUIRED MODAL ================= -->
-<div class="modal" id="authRequiredModal" aria-hidden="true">
-  <div class="modal__backdrop" id="authModalBackdrop"></div>
-  <div class="modal__panel" role="dialog" aria-modal="true" aria-labelledby="authModalTitle">
-    <button class="modal__close" id="authModalClose" aria-label="Close">
-      <svg viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-    </button>
+  <!-- ================= LOGIN REQUIRED MODAL ================= -->
+  <div class="modal" id="authRequiredModal" aria-hidden="true">
+    <div class="modal__backdrop" id="authModalBackdrop"></div>
+    <div class="modal__panel" role="dialog" aria-modal="true" aria-labelledby="authModalTitle">
+      <button class="modal__close" id="authModalClose" aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+        </svg>
+      </button>
 
-    <div class="modal__icon">
-      <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3.5" stroke="currentColor" stroke-width="1.6"/><path d="M5 20c1.4-3.8 4.4-6 7-6s5.6 2.2 7 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-    </div>
+      <div class="modal__icon">
+        <svg viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="8" r="3.5" stroke="currentColor" stroke-width="1.6" />
+          <path d="M5 20c1.4-3.8 4.4-6 7-6s5.6 2.2 7 6" stroke="currentColor" stroke-width="1.6"
+            stroke-linecap="round" />
+        </svg>
+      </div>
 
-    <h2 id="authModalTitle">Sign In to Reserve</h2>
-    <p class="modal__sub">Create a free account or sign in to reserve this seat — we'll bring you right back here to finish your booking.</p>
+      <h2 id="authModalTitle">Sign In to Reserve</h2>
+      <p class="modal__sub">Create a free account or sign in to reserve this seat — we'll bring you right back here to
+        finish your booking.</p>
 
-    <div class="modal__actions">
-      <a href="login.html" class="btn btn--primary" id="authModalLoginBtn">Sign In</a>
-      <a href="register.html" class="btn btn--outline" id="authModalRegisterBtn">Create Account</a>
+      <div class="modal__actions">
+        <a href="login.html" class="btn btn--primary" id="authModalLoginBtn">Sign In</a>
+        <a href="register.html" class="btn btn--outline" id="authModalRegisterBtn">Create Account</a>
+      </div>
     </div>
   </div>
-</div>
 
-<script src="session.js"></script>
-<script src="data-service.js"></script>
-<script src="script.js"></script>
+  <script src="session.js"></script>
+  <script src="data-service.js"></script>
+  <script src="script.js"></script>
 </body>
+
 </html>

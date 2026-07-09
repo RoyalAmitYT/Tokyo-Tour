@@ -8,11 +8,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-  function setError(fieldId, errorId, message){
+  function setError(fieldId, errorId, message) {
     const field = document.getElementById(fieldId);
     const error = document.getElementById(errorId);
     if (!field || !error) return;
-    if (message){
+    if (message) {
       field.classList.add('has-error');
       error.textContent = message;
     } else {
@@ -53,27 +53,27 @@ document.addEventListener('DOMContentLoaded', () => {
       e.preventDefault();
       let valid = true;
 
-      if (!emailInput.value.trim()){
+      if (!emailInput.value.trim()) {
         setError('li-email-field', 'li-email-error', 'Email address is required.');
         valid = false;
-      } else if (!EMAIL_RE.test(emailInput.value.trim())){
+      } else if (!EMAIL_RE.test(emailInput.value.trim())) {
         setError('li-email-field', 'li-email-error', 'Enter a valid email address.');
         valid = false;
       } else {
         setError('li-email-field', 'li-email-error', '');
       }
 
-      if (!passwordInput.value){
+      if (!passwordInput.value) {
         setError('li-password-field', 'li-password-error', 'Password is required.');
         valid = false;
-      } else if (passwordInput.value.length < 6){
+      } else if (passwordInput.value.length < 6) {
         setError('li-password-field', 'li-password-error', 'Password must be at least 6 characters.');
         valid = false;
       } else {
         setError('li-password-field', 'li-password-error', '');
       }
 
-      if (!valid){
+      if (!valid) {
         loginNote.textContent = '';
         return;
       }
@@ -114,7 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (forgotPanel.classList.contains('is-open')) forgotEmail.focus();
     });
     forgotSend && forgotSend.addEventListener('click', () => {
-      if (!forgotEmail.value.trim() || !EMAIL_RE.test(forgotEmail.value.trim())){
+      if (!forgotEmail.value.trim() || !EMAIL_RE.test(forgotEmail.value.trim())) {
         forgotNote.textContent = 'Enter a valid email address first.';
         forgotNote.style.color = '#ff7a6b';
         return;
@@ -152,68 +152,68 @@ document.addEventListener('DOMContentLoaded', () => {
       e.preventDefault();
       let valid = true;
 
-      if (!nameInput.value.trim()){
+      if (!nameInput.value.trim()) {
         setError('rg-name-field', 'rg-name-error', 'Full name is required.');
         valid = false;
       } else {
         setError('rg-name-field', 'rg-name-error', '');
       }
 
-      if (!emailInput.value.trim()){
+      if (!emailInput.value.trim()) {
         setError('rg-email-field', 'rg-email-error', 'Email address is required.');
         valid = false;
-      } else if (!EMAIL_RE.test(emailInput.value.trim())){
+      } else if (!EMAIL_RE.test(emailInput.value.trim())) {
         setError('rg-email-field', 'rg-email-error', 'Enter a valid email address.');
         valid = false;
       } else {
         setError('rg-email-field', 'rg-email-error', '');
       }
 
-      if (!phoneInput.value.trim()){
+      if (!phoneInput.value.trim()) {
         setError('rg-phone-field', 'rg-phone-error', 'Phone number is required.');
         valid = false;
-      } else if (!PHONE_RE.test(phoneInput.value.trim())){
+      } else if (!PHONE_RE.test(phoneInput.value.trim())) {
         setError('rg-phone-field', 'rg-phone-error', 'Enter a valid phone number.');
         valid = false;
       } else {
         setError('rg-phone-field', 'rg-phone-error', '');
       }
 
-      if (!countrySelect.value){
+      if (!countrySelect.value) {
         setError('rg-country-field', 'rg-country-error', 'Please select your country.');
         valid = false;
       } else {
         setError('rg-country-field', 'rg-country-error', '');
       }
 
-      if (!passwordInput.value){
+      if (!passwordInput.value) {
         setError('rg-password-field', 'rg-password-error', 'Password is required.');
         valid = false;
-      } else if (passwordInput.value.length < 6){
+      } else if (passwordInput.value.length < 6) {
         setError('rg-password-field', 'rg-password-error', 'Password must be at least 6 characters.');
         valid = false;
       } else {
         setError('rg-password-field', 'rg-password-error', '');
       }
 
-      if (!confirmInput.value){
+      if (!confirmInput.value) {
         setError('rg-confirm-field', 'rg-confirm-error', 'Please confirm your password.');
         valid = false;
-      } else if (confirmInput.value !== passwordInput.value){
+      } else if (confirmInput.value !== passwordInput.value) {
         setError('rg-confirm-field', 'rg-confirm-error', 'Passwords do not match.');
         valid = false;
       } else {
         setError('rg-confirm-field', 'rg-confirm-error', '');
       }
 
-      if (!termsInput.checked){
+      if (!termsInput.checked) {
         setError('rg-terms-field', 'rg-terms-error', 'You must agree to the Terms & Conditions to continue.');
         valid = false;
       } else {
         setError('rg-terms-field', 'rg-terms-error', '');
       }
 
-      if (!valid){
+      if (!valid) {
         registerNote.textContent = '';
         return;
       }

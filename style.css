@@ -124,8 +124,8 @@ textarea:focus-visible,
 
 /* Custom checkbox / toggle-switch controls hide their native <input>
    visually, so the focus ring must be drawn on the visible sibling instead */
-.auth-checkbox input:focus-visible + .auth-checkbox__box,
-.dash-toggle input:focus-visible + .dash-toggle__switch {
+.auth-checkbox input:focus-visible+.auth-checkbox__box,
+.dash-toggle input:focus-visible+.dash-toggle__switch {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
