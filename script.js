@@ -7,34 +7,41 @@ document.addEventListener('DOMContentLoaded', () => {
   /* ---------- Header auth state (Login/Register vs Dashboard/Logout) ---------- */
   (function renderHeaderAuthState() {
     if (!window.TokyoTourSession) return; // guard in case a page loads script.js without session.js
-    const loggedIn = TokyoTourSession.isAuthenticated();
 
-    const loginLink = document.getElementById('headerLoginLink');
-    const registerLink = document.getElementById('headerRegisterLink');
-    const dashboardLink = document.getElementById('headerDashboardLink');
-    const logoutLink = document.getElementById('headerLogoutLink');
-    const mobileLoginItem = document.getElementById('mobileLoginItem');
-    const mobileRegisterItem = document.getElementById('mobileRegisterItem');
-    const mobileDashboardItem = document.getElementById('mobileDashboardItem');
-    const mobileLogoutItem = document.getElementById('mobileLogoutItem');
+    function render(user) {
+      const loggedIn = !!user;
+      const loginLink = document.getElementById('headerLoginLink');
+      const registerLink = document.getElementById('headerRegisterLink');
+      const dashboardLink = document.getElementById('headerDashboardLink');
+      const logoutLink = document.getElementById('headerLogoutLink');
+      const mobileLoginItem = document.getElementById('mobileLoginItem');
+      const mobileRegisterItem = document.getElementById('mobileRegisterItem');
+      const mobileDashboardItem = document.getElementById('mobileDashboardItem');
+      const mobileLogoutItem = document.getElementById('mobileLogoutItem');
 
-    if (loginLink) loginLink.style.display = loggedIn ? 'none' : '';
-    if (registerLink) registerLink.style.display = loggedIn ? 'none' : '';
-    if (dashboardLink) dashboardLink.style.display = loggedIn ? '' : 'none';
-    if (logoutLink) logoutLink.style.display = loggedIn ? '' : 'none';
-    if (mobileLoginItem) mobileLoginItem.style.display = loggedIn ? 'none' : '';
-    if (mobileRegisterItem) mobileRegisterItem.style.display = loggedIn ? 'none' : '';
-    if (mobileDashboardItem) mobileDashboardItem.style.display = loggedIn ? '' : 'none';
-    if (mobileLogoutItem) mobileLogoutItem.style.display = loggedIn ? '' : 'none';
+      if (loginLink) loginLink.style.display = loggedIn ? 'none' : '';
+      if (registerLink) registerLink.style.display = loggedIn ? 'none' : '';
+      if (dashboardLink) dashboardLink.style.display = loggedIn ? '' : 'none';
+      if (logoutLink) logoutLink.style.display = loggedIn ? '' : 'none';
+      if (mobileLoginItem) mobileLoginItem.style.display = loggedIn ? 'none' : '';
+      if (mobileRegisterItem) mobileRegisterItem.style.display = loggedIn ? 'none' : '';
+      if (mobileDashboardItem) mobileDashboardItem.style.display = loggedIn ? '' : 'none';
+      if (mobileLogoutItem) mobileLogoutItem.style.display = loggedIn ? '' : 'none';
+    }
 
     function handleLogoutClick(e) {
       e.preventDefault();
-      TokyoTourSession.logout();
-      window.location.href = 'index.html';
+      TokyoTourSession.logout().then(() => { window.location.href = 'index.html'; });
     }
+    const logoutLink = document.getElementById('headerLogoutLink');
     logoutLink && logoutLink.addEventListener('click', handleLogoutClick);
     const mobileLogoutLink = document.getElementById('mobileLogoutLink');
     mobileLogoutLink && mobileLogoutLink.addEventListener('click', handleLogoutClick);
+
+    // Render once the initial Supabase session check resolves, then keep in
+    // sync with sign-in/sign-out/token-refresh events for the rest of the page's life.
+    TokyoTourSession.ready.then(() => render(TokyoTourSession.getUser()));
+    TokyoTourSession.onAuthChange(render);
   })();
 
   /* ---------- Loading screen ---------- */
@@ -677,6 +684,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /* ---- Init ---- */
     (async function init() {
+      await TokyoTourSession.ready; // make sure the real Supabase session has been checked first
       await loadTrips(); // Backend integration point: this is the future `await supabase.from('trips').select()` call
       renderTrips();
       updateSummary();

@@ -12,13 +12,12 @@
    change needed later — the rendering code here stays the
    same since it already works off returned records.
 ===================================================== */
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
 
   // Defense in depth: the inline guard in dashboard.html already redirects
   // guests before this script loads, but never trust a single check.
-  if (!window.TokyoTourSession || !TokyoTourSession.requireAuth('dashboard.html')) return;
-
-  const currentUser = TokyoTourSession.getUser();
+  // requireAuth() awaits the real Supabase session check before deciding.
+  if (!window.TokyoTourSession || !(await TokyoTourSession.requireAuth('dashboard.html'))) return;
 
   /* ---------- Tab navigation ---------- */
   const navLinks = document.querySelectorAll('.dash__nav-link');
@@ -47,6 +46,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /* ---------- Render profile / sidebar identity from session ---------- */
   function renderIdentity() {
+    const currentUser = TokyoTourSession.getUser();
+    if (!currentUser) return; // signed out mid-session (e.g. token revoked) — guard already redirects on next check
     const avatarUrl = currentUser.avatar_url || 'https://randomuser.me/api/portraits/women/68.jpg';
     const name = currentUser.full_name || currentUser.email;
 
@@ -96,16 +97,23 @@ document.addEventListener('DOMContentLoaded', () => {
     else renderIdentity(); // cancel: restore session values into the inputs
   });
 
-  profileForm && profileForm.addEventListener('submit', (e) => {
+  profileForm && profileForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    // Backend integration point: this calls TokyoTourSession.updateProfile(),
-    // which is the single place that will be swapped to
-    // `supabase.from('profiles').update(patch).eq('id', user.id)`.
-    TokyoTourSession.updateProfile({
+    const saveBtnDefaultLabel = saveProfileBtn ? saveProfileBtn.textContent : '';
+    if (saveProfileBtn) { saveProfileBtn.disabled = true; }
+    const updated = await TokyoTourSession.updateProfile({
       full_name: document.getElementById('pf-name').value.trim(),
       phone: document.getElementById('pf-phone').value.trim(),
       country: document.getElementById('pf-country').value.trim()
     });
+    if (saveProfileBtn) { saveProfileBtn.disabled = false; saveProfileBtn.textContent = saveBtnDefaultLabel; }
+
+    if (!updated) {
+      profileNote.textContent = 'Unable to update your profile. Please try again.';
+      profileNote.style.color = '#ff7a6b';
+      return;
+    }
+
     profileNote.textContent = 'Profile updated.';
     profileNote.style.color = 'var(--accent-2)';
     editing = false;
@@ -226,6 +234,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const newInput = document.getElementById('st-new');
     const confirmInput = document.getElementById('st-confirm');
     const passwordNote = document.getElementById('passwordNote');
+    const currentField = currentInput.closest('.form-field');
+
+    // If the user arrived here via a "reset your password" email link, a
+    // temporary Supabase recovery session is active — jump straight to
+    // Settings and skip asking for a "current" password they don't know.
+    const recovering = TokyoTourSession.isPasswordRecovery();
+    if (recovering) {
+      activateTab('settings');
+      if (currentField) currentField.style.display = 'none';
+      passwordNote.textContent = 'Enter a new password below to finish resetting it.';
+      passwordNote.style.color = 'var(--text-dim)';
+    }
 
     function setErr(fieldEl, errId, msg) {
       const errEl = document.getElementById(errId);
@@ -233,12 +253,15 @@ document.addEventListener('DOMContentLoaded', () => {
       else { fieldEl.closest('.form-field').classList.remove('has-error'); errEl.textContent = ''; }
     }
 
-    passwordForm.addEventListener('submit', (e) => {
+    passwordForm.addEventListener('submit', async (e) => {
       e.preventDefault();
+      const isRecovery = TokyoTourSession.isPasswordRecovery();
       let valid = true;
 
-      if (!currentInput.value) { setErr(currentInput, 'st-current-error', 'Enter your current password.'); valid = false; }
-      else setErr(currentInput, 'st-current-error', '');
+      if (!isRecovery) {
+        if (!currentInput.value) { setErr(currentInput, 'st-current-error', 'Enter your current password.'); valid = false; }
+        else setErr(currentInput, 'st-current-error', '');
+      }
 
       if (!newInput.value || newInput.value.length < 6) { setErr(newInput, 'st-new-error', 'Minimum 6 characters.'); valid = false; }
       else setErr(newInput, 'st-new-error', '');
@@ -246,26 +269,49 @@ document.addEventListener('DOMContentLoaded', () => {
       if (confirmInput.value !== newInput.value || !confirmInput.value) { setErr(confirmInput, 'st-confirm-error', 'Passwords do not match.'); valid = false; }
       else setErr(confirmInput, 'st-confirm-error', '');
 
-      if (!valid) { passwordNote.textContent = ''; return; }
+      if (!valid) { if (!isRecovery) passwordNote.textContent = ''; return; }
 
-      // Backend integration point:
-      //   await supabase.auth.updateUser({ password: newInput.value });
+      const submitBtn = passwordForm.querySelector('button[type="submit"]');
+      submitBtn.disabled = true;
+
+      if (!isRecovery) {
+        // Verify the current password by re-authenticating before allowing the change.
+        const currentUser = TokyoTourSession.getUser();
+        const { error: reauthError } = await TokyoTourSession.login(currentUser.email, currentInput.value);
+        if (reauthError) {
+          submitBtn.disabled = false;
+          setErr(currentInput, 'st-current-error', 'Current password is incorrect.');
+          passwordNote.textContent = '';
+          return;
+        }
+      }
+
+      const { error } = await TokyoTourSession.updatePassword(newInput.value);
+      submitBtn.disabled = false;
+
+      if (error) {
+        passwordNote.textContent = error;
+        passwordNote.style.color = '#ff7a6b';
+        return;
+      }
+
       passwordNote.textContent = 'Password updated.';
       passwordNote.style.color = 'var(--accent-2)';
       passwordForm.reset();
+      if (currentField) currentField.style.display = '';
     });
   }
 
   /* ---------- Settings: delete account ---------- */
   const deleteAccountBtn = document.getElementById('deleteAccountBtn');
   const deleteAccountNote = document.getElementById('deleteAccountNote');
-  deleteAccountBtn && deleteAccountBtn.addEventListener('click', () => {
+  deleteAccountBtn && deleteAccountBtn.addEventListener('click', async () => {
     const confirmed = window.confirm('Are you sure you want to permanently delete your account? This cannot be undone.');
     if (!confirmed) return;
-    // Backend integration point:
-    //   await supabase.rpc('delete_user_account'); // or an Edge Function w/ service role
-    //   await supabase.auth.signOut();
-    TokyoTourSession.logout();
+    // Actual account deletion needs a privileged (service-role) call and is
+    // out of scope for this phase — auth-only. This signs the user out so
+    // the UI reflects the request; wire up real deletion in a later phase.
+    await TokyoTourSession.logout();
     deleteAccountNote.textContent = 'Account deletion simulated — redirecting to homepage...';
     deleteAccountNote.style.color = 'var(--accent-2)';
     setTimeout(() => { window.location.href = 'index.html'; }, 1200);
@@ -273,8 +319,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /* ---------- Logout ---------- */
   const logoutBtn = document.getElementById('logoutBtn');
-  logoutBtn && logoutBtn.addEventListener('click', () => {
-    TokyoTourSession.logout();
+  logoutBtn && logoutBtn.addEventListener('click', async () => {
+    await TokyoTourSession.logout();
     window.location.href = 'index.html';
   });
 

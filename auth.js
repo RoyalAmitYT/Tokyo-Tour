@@ -78,8 +78,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      // Backend integration point: authenticate user against Supabase Auth here
-      // (see session.js -> TokyoTourSession.login for the exact call to swap in).
       const submitBtn = loginForm.querySelector('button[type="submit"]');
       submitBtn.disabled = true;
       TokyoTourSession.login(emailInput.value.trim(), passwordInput.value).then(({ user, error }) => {
@@ -119,10 +117,15 @@ document.addEventListener('DOMContentLoaded', () => {
         forgotNote.style.color = '#ff7a6b';
         return;
       }
-      // Backend integration point: trigger password-reset email via your API here.
-      forgotNote.textContent = "If an account exists for that email, a reset link has been sent.";
-      forgotNote.style.color = 'var(--accent-2)';
-      forgotEmail.value = '';
+      forgotSend.disabled = true;
+      TokyoTourSession.resetPasswordForEmail(forgotEmail.value.trim()).then(() => {
+        // Always show the same neutral message, whether or not the address
+        // has an account — this avoids leaking which emails are registered.
+        forgotSend.disabled = false;
+        forgotNote.textContent = 'If an account exists for that email, a reset link has been sent.';
+        forgotNote.style.color = 'var(--accent-2)';
+        forgotEmail.value = '';
+      });
     });
 
     /* ---------- Google login (UI only) ---------- */
@@ -218,8 +221,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      // Backend integration point: create the account via Supabase Auth here
-      // (see session.js -> TokyoTourSession.register for the exact call to swap in).
       const submitBtn = registerForm.querySelector('button[type="submit"]');
       submitBtn.disabled = true;
       TokyoTourSession.register({
@@ -228,10 +229,21 @@ document.addEventListener('DOMContentLoaded', () => {
         phone: phoneInput.value.trim(),
         country: countrySelect.value,
         password: passwordInput.value
-      }).then(({ user, error }) => {
+      }).then(({ user, error, needsEmailConfirmation }) => {
         submitBtn.disabled = false;
-        if (error || !user) {
-          registerNote.textContent = error || 'Unable to create your account. Please try again.';
+        if (error) {
+          registerNote.textContent = error;
+          registerNote.style.color = '#ff7a6b';
+          return;
+        }
+        if (needsEmailConfirmation) {
+          registerNote.textContent = 'Account created! Check your email to confirm your address, then sign in.';
+          registerNote.style.color = 'var(--accent-2)';
+          registerForm.reset();
+          return;
+        }
+        if (!user) {
+          registerNote.textContent = 'Unable to create your account. Please try again.';
           registerNote.style.color = '#ff7a6b';
           return;
         }

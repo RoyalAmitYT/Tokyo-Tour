@@ -41,17 +41,22 @@
 
 <body class="dashboard-body">
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="session.js"></script>
   <script>
     // Auth guard — Dashboard, Profile, Wishlist and Settings are all inside
     // this single page's tab system, so one check here protects all of them.
-    // Runs before any dashboard markup is shown to avoid a flash of another
-    // user's-shaped content. Backend integration point: once Supabase Auth
-    // is wired, TokyoTourSession.isAuthenticated() reflects a real session
-    // check (supabase.auth.getUser()) instead of the localStorage mock.
-    if (!window.TokyoTourSession || !TokyoTourSession.isAuthenticated()) {
-      window.location.replace('login.html?redirect=dashboard.html');
-    }
+    // Waits for the real Supabase session check (TokyoTourSession.ready)
+    // before deciding, then redirects guests before any dashboard markup
+    // is meaningfully interacted with. dashboard.js repeats this check
+    // (defense in depth) before rendering any user data.
+    (async () => {
+      if (!window.TokyoTourSession) { window.location.replace('login.html?redirect=dashboard.html'); return; }
+      await TokyoTourSession.ready;
+      if (!TokyoTourSession.isAuthenticated()) {
+        window.location.replace('login.html?redirect=dashboard.html');
+      }
+    })();
   </script>
 
   <div class="dash">
@@ -223,9 +228,8 @@
              BookingsService.getForCurrentUser() and these two can be removed. -->
 
           <article class="dash-booking">
-            <img
-              src="https://commons.wikimedia.org/wiki/Special:FilePath/Fushimi_Inari-taisha_sembon-torii.jpg?width=400"
-              alt="Path lined with vermilion torii gates at Fushimi Inari, Kyoto" loading="lazy">
+            <img src="images/japan.jpg" alt="Path lined with vermilion torii gates at Fushimi Inari, Kyoto"
+              loading="lazy">
             <div class="dash-booking__body">
               <div class="dash-booking__top">
                 <h3>Kyoto Lanterns Tour</h3>
@@ -241,9 +245,7 @@
           </article>
 
           <article class="dash-booking">
-            <img
-              src="https://commons.wikimedia.org/wiki/Special:FilePath/Mount_Fuji_%40_Lake_Ashi_%40_Hakone_(13776927014).jpg?width=400"
-              alt="Mount Fuji viewed across Lake Ashi, Hakone" loading="lazy">
+            <img src="images/mount_fuji.jpg" alt="Mount Fuji viewed across Lake Ashi, Hakone" loading="lazy">
             <div class="dash-booking__body">
               <div class="dash-booking__top">
                 <h3>Hakone Mist &amp; Onsen</h3>
