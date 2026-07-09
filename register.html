@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Create Account — Tokyo Tour</title>
+<meta name="description" content="Create a Tokyo Tour account to book premium guided tours across Japan.">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0b0d12">
+<link rel="canonical" href="https://www.tokyotour.travel/register.html">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Tokyo Tour">
+<meta property="og:title" content="Create Account — Tokyo Tour">
+<meta property="og:description" content="Create a Tokyo Tour account to book premium guided tours across Japan.">
+<meta property="og:image" content="https://www.tokyotour.travel/images/japan.jpg">
+<meta property="og:url" content="https://www.tokyotour.travel/register.html">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Create Account — Tokyo Tour">
+<meta name="twitter:description" content="Create a Tokyo Tour account to book premium guided tours across Japan.">
+<meta name="twitter:image" content="https://www.tokyotour.travel/images/japan.jpg">
+
+<!-- Favicons (placeholders — see summary) -->
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="auth-body">
+
+<div class="auth">
+
+  <div class="auth__visual">
+    <img src="images/japan.jpg" alt="Kyoto pagoda street at dusk" class="auth__visual-img" width="1537" height="1023">
+    <div class="auth__visual-overlay"></div>
+    <a href="index.html" class="brand auth__brand">
+      <span class="brand__dot"></span>
+      <span class="brand__name">TOKYO<span class="brand__name-thin">TOUR</span></span>
+    </a>
+  </div>
+
+  <div class="auth__panel">
+    <div class="auth__panel-inner">
+
+      <a href="index.html" class="auth__back"><span aria-hidden="true">←</span> Back to site</a>
+
+      <h1 class="auth__title">Create Your Account</h1>
+      <p class="auth__subtitle">Takes less than a minute — no payment required yet.</p>
+
+      <form id="registerForm" class="auth-form" novalidate>
+
+        <div class="form-field" id="rg-name-field">
+          <label for="rg-name">Full Name</label>
+          <input type="text" id="rg-name" name="fullName" placeholder="Your full name" autocomplete="name">
+          <span class="form-error" id="rg-name-error"></span>
+        </div>
+
+        <div class="auth-form__row auth-form__row--2col">
+          <div class="form-field" id="rg-email-field">
+            <label for="rg-email">Email Address</label>
+            <input type="email" id="rg-email" name="email" placeholder="you@email.com" autocomplete="email">
+            <span class="form-error" id="rg-email-error"></span>
+          </div>
+          <div class="form-field" id="rg-phone-field">
+            <label for="rg-phone">Phone Number</label>
+            <input type="tel" id="rg-phone" name="phone" placeholder="+1 555 000 0000" autocomplete="tel">
+            <span class="form-error" id="rg-phone-error"></span>
+          </div>
+        </div>
+
+        <div class="form-field" id="rg-country-field">
+          <label for="rg-country">Country</label>
+          <select id="rg-country" name="country" autocomplete="country">
+            <option value="" disabled selected>Select your country</option>
+            <option>United States</option>
+            <option>United Kingdom</option>
+            <option>Canada</option>
+            <option>Australia</option>
+            <option>Germany</option>
+            <option>France</option>
+            <option>Sweden</option>
+            <option>Singapore</option>
+            <option>Nigeria</option>
+            <option>Japan</option>
+            <option>India</option>
+            <option>Brazil</option>
+            <option>Other</option>
+          </select>
+          <span class="form-error" id="rg-country-error"></span>
+        </div>
+
+        <div class="auth-form__row auth-form__row--2col">
+          <div class="form-field" id="rg-password-field">
+            <label for="rg-password">Password</label>
+            <div class="auth-input-wrap">
+              <input type="password" id="rg-password" name="password" placeholder="••••••••" autocomplete="new-password">
+              <button type="button" class="auth-toggle-visibility" data-target="rg-password" aria-label="Show password">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.6"/></svg>
+              </button>
+            </div>
+            <span class="form-error" id="rg-password-error"></span>
+          </div>
+          <div class="form-field" id="rg-confirm-field">
+            <label for="rg-confirm">Confirm Password</label>
+            <div class="auth-input-wrap">
+              <input type="password" id="rg-confirm" name="confirmPassword" placeholder="••••••••" autocomplete="new-password">
+              <button type="button" class="auth-toggle-visibility" data-target="rg-confirm" aria-label="Show password">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.6"/></svg>
+              </button>
+            </div>
+            <span class="form-error" id="rg-confirm-error"></span>
+          </div>
+        </div>
+
+        <div class="form-field" id="rg-terms-field">
+          <label class="auth-checkbox auth-checkbox--terms">
+            <input type="checkbox" id="rg-terms" name="terms">
+            <span class="auth-checkbox__box"></span>
+            <span>I agree to the <a href="#" class="text-link">Terms &amp; Conditions</a> and <a href="#" class="text-link">Privacy Policy</a></span>
+          </label>
+          <span class="form-error" id="rg-terms-error"></span>
+        </div>
+
+        <button type="submit" class="btn btn--primary auth-submit">Create Account</button>
+        <p class="auth-form__note" id="registerNote" aria-live="polite"></p>
+      </form>
+
+      <div class="auth-divider"><span>or continue with</span></div>
+
+      <button type="button" class="btn btn--outline auth-google" id="googleRegisterBtn">
+        <svg viewBox="0 0 48 48" width="18" height="18" aria-hidden="true">
+          <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.4 29.3 35 24 35c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 3l5.7-5.7C34.6 5.1 29.6 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21 21-9.4 21-21c0-1.4-.1-2.5-.4-3.5Z"/>
+          <path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.6 15.9 18.9 13 24 13c3.1 0 5.8 1.1 8 3l5.7-5.7C34.6 6.1 29.6 4 24 4c-7.7 0-14.4 4.3-17.7 10.7Z"/>
+          <path fill="#4CAF50" d="M24 44c5.5 0 10.4-1.9 14.2-5.1l-6.6-5.4C29.5 35.4 26.9 36 24 36c-5.3 0-9.7-3.4-11.3-8.1l-6.6 5.1C9.5 39.6 16.2 44 24 44Z"/>
+          <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.1-4 5.4l6.6 5.4C41.6 35.9 44 30.4 44 24c0-1.4-.1-2.5-.4-3.5Z"/>
+        </svg>
+        Continue with Google
+      </button>
+
+      <p class="auth-switch">Already have an account? <a href="login.html">Sign in</a></p>
+
+    </div>
+  </div>
+
+</div>
+
+<script src="session.js"></script>
+<script src="auth.js"></script>
+</body>
+</html>

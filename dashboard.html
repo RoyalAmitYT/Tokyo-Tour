@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Dashboard — Tokyo Tour</title>
+<meta name="description" content="Manage your bookings, wishlist and account details.">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0b0d12">
+<link rel="canonical" href="https://www.tokyotour.travel/dashboard.html">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Tokyo Tour">
+<meta property="og:title" content="My Dashboard — Tokyo Tour">
+<meta property="og:description" content="Manage your bookings, wishlist and account details.">
+<meta property="og:image" content="https://www.tokyotour.travel/images/japan_torri_gate.jpg">
+<meta property="og:url" content="https://www.tokyotour.travel/dashboard.html">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="My Dashboard — Tokyo Tour">
+<meta name="twitter:description" content="Manage your bookings, wishlist and account details.">
+<meta name="twitter:image" content="https://www.tokyotour.travel/images/japan_torri_gate.jpg">
+
+<!-- Favicons (placeholders — see summary) -->
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="dashboard-body">
+
+<script src="session.js"></script>
+<script>
+  // Auth guard — Dashboard, Profile, Wishlist and Settings are all inside
+  // this single page's tab system, so one check here protects all of them.
+  // Runs before any dashboard markup is shown to avoid a flash of another
+  // user's-shaped content. Backend integration point: once Supabase Auth
+  // is wired, TokyoTourSession.isAuthenticated() reflects a real session
+  // check (supabase.auth.getUser()) instead of the localStorage mock.
+  if (!window.TokyoTourSession || !TokyoTourSession.isAuthenticated()) {
+    window.location.replace('login.html?redirect=dashboard.html');
+  }
+</script>
+
+<div class="dash">
+
+  <!-- ================= SIDEBAR ================= -->
+  <aside class="dash__sidebar" id="dashSidebar">
+    <a href="index.html" class="brand dash__brand">
+      <span class="brand__dot"></span>
+      <span class="brand__name">TOKYO<span class="brand__name-thin">TOUR</span></span>
+    </a>
+
+    <div class="dash__user">
+      <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="" class="dash__user-avatar" id="dashUserAvatar">
+      <div>
+        <p class="dash__user-name" id="dashUserName">Sarah Bennett</p>
+        <p class="dash__user-email" id="dashUserEmail">sarah.bennett@email.com</p>
+      </div>
+    </div>
+
+    <nav class="dash__nav">
+      <button class="dash__nav-link is-active" data-tab="profile">
+        <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3.5" stroke="currentColor" stroke-width="1.6"/><path d="M5 20c1.4-3.8 4.4-6 7-6s5.6 2.2 7 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        Profile
+      </button>
+      <button class="dash__nav-link" data-tab="upcoming">
+        <svg viewBox="0 0 24 24" fill="none"><rect x="3.5" y="5" width="17" height="15" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M8 3v4M16 3v4M3.5 10h17" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        Upcoming Tours
+      </button>
+      <button class="dash__nav-link" data-tab="history">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M4 12a8 8 0 1 1 2.6 5.9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M4 8v4h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 9v3.5l2.5 1.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        Booking History
+      </button>
+      <button class="dash__nav-link" data-tab="wishlist">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 20s-7-4.3-9.5-8.6C.7 8 2.4 4.5 6 4c2-.3 3.7.7 6 3 2.3-2.3 4-3.3 6-3 3.6.5 5.3 4 3.5 7.4C19 15.7 12 20 12 20Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+        Wishlist
+      </button>
+      <button class="dash__nav-link" data-tab="saved">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M6 3.5h12v17l-6-3.6-6 3.6v-17Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+        Saved Tours
+      </button>
+      <button class="dash__nav-link" data-tab="settings">
+        <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.6"/><path d="M19.4 13a7.9 7.9 0 0 0 0-2l2-1.5-2-3.5-2.4.7a8 8 0 0 0-1.7-1L15 3h-4l-.3 2.7a8 8 0 0 0-1.7 1l-2.4-.7-2 3.5L6.6 11a7.9 7.9 0 0 0 0 2l-2 1.5 2 3.5 2.4-.7a8 8 0 0 0 1.7 1L11 21h4l.3-2.7a8 8 0 0 0 1.7-1l2.4.7 2-3.5-2-1.5Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+        Settings
+      </button>
+    </nav>
+
+    <button class="dash__logout" id="logoutBtn">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M16 17l5-5-5-5M21 12H9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Logout
+    </button>
+  </aside>
+
+  <!-- ================= MOBILE TOPBAR ================= -->
+  <header class="dash__topbar">
+    <a href="index.html" class="brand">
+      <span class="brand__dot"></span>
+      <span class="brand__name">TOKYO<span class="brand__name-thin">TOUR</span></span>
+    </a>
+    <button class="dash__topbar-toggle" id="dashMenuToggle" aria-label="Open menu" aria-expanded="false" aria-controls="dashSidebar">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    </button>
+  </header>
+
+  <!-- ================= MAIN CONTENT ================= -->
+  <main class="dash__main">
+
+    <!-- PROFILE -->
+    <section class="dash__panel is-active" data-panel="profile">
+      <div class="dash__panel-head">
+        <h1>My Profile</h1>
+        <p>Your personal details, visible only to you.</p>
+      </div>
+
+      <div class="dash-card dash-profile">
+        <div class="dash-profile__top">
+          <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="" class="dash-profile__avatar" id="profileAvatar">
+          <div>
+            <h3 id="profileNameHeading">Sarah Bennett</h3>
+            <p>Member since <span id="profileMemberSince">March 2023</span> · <span class="dash-badge">Gold Traveler</span></p>
+          </div>
+          <button class="btn btn--outline btn--sm" id="editProfileBtn">Edit Profile</button>
+        </div>
+
+        <form class="dash-profile__form" id="profileForm">
+          <div class="auth-form__row auth-form__row--2col">
+            <div class="form-field">
+              <label for="pf-name">Full Name</label>
+              <input type="text" id="pf-name" value="" disabled>
+            </div>
+            <div class="form-field">
+              <label for="pf-email">Email Address</label>
+              <input type="email" id="pf-email" value="" disabled>
+            </div>
+          </div>
+          <div class="auth-form__row auth-form__row--2col">
+            <div class="form-field">
+              <label for="pf-phone">Phone Number</label>
+              <input type="tel" id="pf-phone" value="" disabled>
+            </div>
+            <div class="form-field">
+              <label for="pf-country">Country</label>
+              <input type="text" id="pf-country" value="" disabled>
+            </div>
+          </div>
+          <button type="submit" class="btn btn--primary" id="saveProfileBtn" style="display:none;">Save Changes</button>
+          <p class="auth-form__note" id="profileNote" aria-live="polite"></p>
+        </form>
+      </div>
+
+      <div class="dash-stats">
+        <div class="dash-stat"><span class="dash-stat__num">4</span><span class="dash-stat__label">Tours Booked</span></div>
+        <div class="dash-stat"><span class="dash-stat__num">2</span><span class="dash-stat__label">Countries Visited</span></div>
+        <div class="dash-stat"><span class="dash-stat__num">6</span><span class="dash-stat__label">Wishlist Items</span></div>
+        <div class="dash-stat"><span class="dash-stat__num">$4,120</span><span class="dash-stat__label">Total Spent</span></div>
+      </div>
+    </section>
+
+    <!-- UPCOMING TOURS -->
+    <section class="dash__panel" data-panel="upcoming">
+      <div class="dash__panel-head">
+        <h1>Upcoming Tours</h1>
+        <p>Trips you're all booked in for.</p>
+      </div>
+
+      <div class="dash-booking-list" id="upcomingBookingsList">
+
+        <!-- Illustrative demo entries — real bookings created via booking.html
+             are prepended above these by dashboard.js (BookingsService).
+             Once Supabase is connected, this whole list renders from
+             BookingsService.getForCurrentUser() and these two can be removed. -->
+
+        <article class="dash-booking">
+          <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Fushimi_Inari-taisha_sembon-torii.jpg?width=400" alt="Path lined with vermilion torii gates at Fushimi Inari, Kyoto" loading="lazy">
+          <div class="dash-booking__body">
+            <div class="dash-booking__top">
+              <h3>Kyoto Lanterns Tour</h3>
+              <span class="dash-status dash-status--confirmed">Confirmed</span>
+            </div>
+            <p class="dash-booking__meta">Oct 12 – Oct 16, 2026 · 2 Adults · Seat No. 14–15</p>
+            <p class="dash-booking__ref">Booking Reference: TT-8KX2QF</p>
+          </div>
+          <div class="dash-booking__actions">
+            <span class="dash-booking__price">$2,480</span>
+            <button class="btn btn--outline btn--sm">Manage</button>
+          </div>
+        </article>
+
+        <article class="dash-booking">
+          <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Mount_Fuji_%40_Lake_Ashi_%40_Hakone_(13776927014).jpg?width=400" alt="Mount Fuji viewed across Lake Ashi, Hakone" loading="lazy">
+          <div class="dash-booking__body">
+            <div class="dash-booking__top">
+              <h3>Hakone Mist &amp; Onsen</h3>
+              <span class="dash-status dash-status--pending">Payment Pending</span>
+            </div>
+            <p class="dash-booking__meta">Dec 3 – Dec 5, 2026 · 2 Adults · Seat No. 07</p>
+            <p class="dash-booking__ref">Booking Reference: TT-4M9P1L</p>
+          </div>
+          <div class="dash-booking__actions">
+            <span class="dash-booking__price">$780</span>
+            <button class="btn btn--primary btn--sm">Complete Payment</button>
+          </div>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- BOOKING HISTORY -->
+    <section class="dash__panel" data-panel="history">
+      <div class="dash__panel-head">
+        <h1>Booking History</h1>
+        <p>A record of trips you've already taken with us.</p>
+      </div>
+
+      <div class="dash-table" id="bookingHistoryTable">
+        <!-- Completed/cancelled trips — will render from
+             BookingsService.getForCurrentUser() filtered by booking_status
+             once Supabase is connected. Demo rows kept as visual reference. -->
+        <div class="dash-table__row dash-table__row--head">
+          <span>Tour</span><span>Dates</span><span>Amount</span><span>Status</span><span></span>
+        </div>
+        <div class="dash-table__row">
+          <span data-label="Tour">Osaka Castle &amp; Street Food</span>
+          <span data-label="Dates">Apr 4 – Apr 7, 2025</span>
+          <span data-label="Amount">$980</span>
+          <span data-label="Status"><span class="dash-status dash-status--completed">Completed</span></span>
+          <span data-label=""><button class="btn btn--outline btn--sm">Invoice</button></span>
+        </div>
+        <div class="dash-table__row">
+          <span data-label="Tour">Sakura Season, Tokyo</span>
+          <span data-label="Dates">Mar 25 – Mar 30, 2025</span>
+          <span data-label="Amount">$1,240</span>
+          <span data-label="Status"><span class="dash-status dash-status--completed">Completed</span></span>
+          <span data-label=""><button class="btn btn--outline btn--sm">Invoice</button></span>
+        </div>
+        <div class="dash-table__row">
+          <span data-label="Tour">Mount Fuji Sunrise</span>
+          <span data-label="Dates">Nov 2 – Nov 3, 2024</span>
+          <span data-label="Amount">$690</span>
+          <span data-label="Status"><span class="dash-status dash-status--completed">Completed</span></span>
+          <span data-label=""><button class="btn btn--outline btn--sm">Invoice</button></span>
+        </div>
+        <div class="dash-table__row">
+          <span data-label="Tour">Kyoto Temples &amp; Gardens</span>
+          <span data-label="Dates">Oct 8 – Oct 12, 2024</span>
+          <span data-label="Amount">$1,180</span>
+          <span data-label="Status"><span class="dash-status dash-status--cancelled">Cancelled</span></span>
+          <span data-label=""><button class="btn btn--outline btn--sm" disabled>Invoice</button></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- WISHLIST -->
+    <section class="dash__panel" data-panel="wishlist">
+      <div class="dash__panel-head">
+        <h1>Wishlist</h1>
+        <p>Destinations you've bookmarked for a future trip.</p>
+      </div>
+
+      <div class="dash-grid" id="wishlistGrid">
+        <!-- Rendered by dashboard.js from TokyoTourData.WishlistService.getForCurrentUser('wishlist') -->
+      </div>
+      <p class="dash-empty" id="wishlistEmpty" style="display:none;">Your wishlist is empty — explore <a href="index.html#destinations" class="text-link">destinations</a> to add some.</p>
+    </section>
+
+    <!-- SAVED TOURS -->
+    <section class="dash__panel" data-panel="saved">
+      <div class="dash__panel-head">
+        <h1>Saved Tours</h1>
+        <p>Tour packages you've bookmarked to book later.</p>
+      </div>
+
+      <div class="dash-grid" id="savedGrid">
+        <!-- Rendered by dashboard.js from TokyoTourData.WishlistService.getForCurrentUser('saved') -->
+      </div>
+      <p class="dash-empty" id="savedEmpty" style="display:none;">No saved tours yet — browse our <a href="index.html#tours" class="text-link">popular tours</a>.</p>
+    </section>
+
+    <!-- SETTINGS -->
+    <section class="dash__panel" data-panel="settings">
+      <div class="dash__panel-head">
+        <h1>Settings</h1>
+        <p>Manage your password, notifications and account.</p>
+      </div>
+
+      <div class="dash-card">
+        <h3 class="dash-card__title">Change Password</h3>
+        <form class="dash-settings-form" id="passwordForm">
+          <div class="form-field">
+            <label for="st-current">Current Password</label>
+            <input type="password" id="st-current" placeholder="••••••••">
+            <span class="form-error" id="st-current-error"></span>
+          </div>
+          <div class="auth-form__row auth-form__row--2col">
+            <div class="form-field">
+              <label for="st-new">New Password</label>
+              <input type="password" id="st-new" placeholder="••••••••">
+              <span class="form-error" id="st-new-error"></span>
+            </div>
+            <div class="form-field">
+              <label for="st-confirm">Confirm New Password</label>
+              <input type="password" id="st-confirm" placeholder="••••••••">
+              <span class="form-error" id="st-confirm-error"></span>
+            </div>
+          </div>
+          <button type="submit" class="btn btn--primary btn--sm">Update Password</button>
+          <p class="auth-form__note" id="passwordNote" aria-live="polite"></p>
+        </form>
+      </div>
+
+      <div class="dash-card">
+        <h3 class="dash-card__title">Notification Preferences</h3>
+        <div class="dash-toggle-list">
+          <label class="dash-toggle">
+            <span>Booking &amp; trip updates by email</span>
+            <input type="checkbox" checked>
+            <span class="dash-toggle__switch"></span>
+          </label>
+          <label class="dash-toggle">
+            <span>SMS alerts for departure reminders</span>
+            <input type="checkbox" checked>
+            <span class="dash-toggle__switch"></span>
+          </label>
+          <label class="dash-toggle">
+            <span>Seasonal offers &amp; newsletter</span>
+            <input type="checkbox">
+            <span class="dash-toggle__switch"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="dash-card dash-card--danger">
+        <h3 class="dash-card__title">Delete Account</h3>
+        <p class="dash-card__desc">Permanently remove your account and all saved data. This cannot be undone.</p>
+        <button class="btn btn--outline btn--sm dash-danger-btn" id="deleteAccountBtn">Delete My Account</button>
+        <p class="auth-form__note" id="deleteAccountNote" aria-live="polite"></p>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script src="data-service.js"></script>
+<script src="dashboard.js"></script>
+</body>
+</html>
