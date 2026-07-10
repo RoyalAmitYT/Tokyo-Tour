@@ -27,40 +27,74 @@
 
   /* =====================================================
      TRIPS
-     Maps to a future `trips` table. Field names below are
-     the intended Postgres column names.
+     Backed by the real `trips` table in Supabase. Rows are
+     mapped onto the exact same shape the old mock TRIPS
+     array used (id, destination, title, start_date, end_date,
+     duration, price, total_seats, seats_available, image) so
+     calling code doesn't need to change until the UI is
+     wired up in a later phase.
   ===================================================== */
-  const TRIPS = [
-    { id: 'tt-2026-08-tokyo-summer', destination: 'Tokyo', title: 'Tokyo Summer Festival & Fireworks Tour', start_date: '2026-08-08', end_date: '2026-08-15', duration: '8 Days / 7 Nights', price: 1350, total_seats: 12, seats_available: 7, image: 'images/tokyo.jpg' },
-    { id: 'tt-2026-09-kyoto-heritage', destination: 'Kyoto', title: 'Kyoto Heritage & Tea Ceremony Journey', start_date: '2026-09-12', end_date: '2026-09-19', duration: '8 Days / 7 Nights', price: 1480, total_seats: 10, seats_available: 2, image: 'images/kyoto.jpg' },
-    { id: 'tt-2026-10-hakone-autumn', destination: 'Hakone', title: 'Nikko & Hakone Autumn Foliage Tour', start_date: '2026-10-03', end_date: '2026-10-10', duration: '8 Days / 7 Nights', price: 1590, total_seats: 12, seats_available: 9, image: 'images/Hakone.jpg' },
-    { id: 'tt-2026-10-osaka-autumn', destination: 'Osaka', title: 'Osaka Food & Autumn Colors Escape', start_date: '2026-10-21', end_date: '2026-10-27', duration: '7 Days / 6 Nights', price: 1420, total_seats: 10, seats_available: 0, image: 'images/osaka_castle_grounds.jpg' },
-    { id: 'tt-2026-11-kyoto-maple', destination: 'Kyoto', title: 'Kyoto Autumn Maple Leaves Tour', start_date: '2026-11-06', end_date: '2026-11-13', duration: '8 Days / 7 Nights', price: 1650, total_seats: 12, seats_available: 3, image: 'images/kyoto_lanterns.jpg' },
-    { id: 'tt-2026-11-fuji-autumn', destination: 'Mount Fuji', title: 'Mount Fuji Autumn Splendor Trek', start_date: '2026-11-18', end_date: '2026-11-24', duration: '7 Days / 6 Nights', price: 1580, total_seats: 10, seats_available: 6, image: 'images/mount_fuji.jpg' },
-    { id: 'tt-2026-12-tokyo-winter', destination: 'Tokyo', title: 'Tokyo Winter Illumination & Culture Tour', start_date: '2026-12-05', end_date: '2026-12-12', duration: '8 Days / 7 Nights', price: 1490, total_seats: 12, seats_available: 4, image: 'images/shibuya_crossing.jpg' },
-    { id: 'tt-2027-01-tokyo-newyear', destination: 'Tokyo', title: 'Tokyo New Year Traditions Tour', start_date: '2027-01-10', end_date: '2027-01-17', duration: '8 Days / 7 Nights', price: 1550, total_seats: 12, seats_available: 1, image: 'images/tokyo.jpg' },
-    { id: 'tt-2027-02-hakone-snow', destination: 'Hakone', title: 'Hakone Snow & Hot Springs Retreat', start_date: '2027-02-14', end_date: '2027-02-20', duration: '7 Days / 6 Nights', price: 1620, total_seats: 10, seats_available: 8, image: 'images/hakone_mist.jpg' },
-    { id: 'tt-2027-03-kyoto-sakura-early', destination: 'Kyoto', title: 'Kyoto Early Cherry Blossom Tour', start_date: '2027-03-06', end_date: '2027-03-13', duration: '8 Days / 7 Nights', price: 1780, total_seats: 12, seats_available: 5, image: 'images/kyoto.jpg' },
-    { id: 'tt-2027-03-tokyo-sakura', destination: 'Tokyo', title: 'Tokyo Sakura Bloom Experience', start_date: '2027-03-24', end_date: '2027-03-31', duration: '8 Days / 7 Nights', price: 1850, total_seats: 14, seats_available: 0, image: 'images/gion_district.jpg' },
-    { id: 'tt-2027-04-fuji-sakura', destination: 'Mount Fuji', title: 'Mount Fuji & Hakone Cherry Blossom Tour', start_date: '2027-04-04', end_date: '2027-04-11', duration: '8 Days / 7 Nights', price: 1920, total_seats: 12, seats_available: 2, image: 'images/mount_fuji.jpg' },
-    { id: 'tt-2027-04-osaka-kyoto-bloom', destination: 'Osaka', title: 'Osaka & Kyoto Full Bloom Grand Tour', start_date: '2027-04-16', end_date: '2027-04-25', duration: '10 Days / 9 Nights', price: 2380, total_seats: 14, seats_available: 10, image: 'images/osaka_castle.jpg' },
-    { id: 'tt-2027-05-tokyo-golden-week', destination: 'Tokyo', title: 'Tokyo Golden Week Discovery Tour', start_date: '2027-05-08', end_date: '2027-05-15', duration: '8 Days / 7 Nights', price: 1500, total_seats: 12, seats_available: 6, image: 'images/tokyo.jpg' },
-    { id: 'tt-2027-06-kyoto-zen', destination: 'Kyoto', title: 'Kyoto Rainy Season Zen Retreat', start_date: '2027-06-12', end_date: '2027-06-18', duration: '7 Days / 6 Nights', price: 1380, total_seats: 10, seats_available: 9, image: 'images/kyoto.jpg' },
-    { id: 'tt-2027-07-osaka-summer', destination: 'Osaka', title: 'Osaka Summer Festival & Street Food Tour', start_date: '2027-07-09', end_date: '2027-07-16', duration: '8 Days / 7 Nights', price: 1460, total_seats: 12, seats_available: 3, image: 'images/Osaka.jpg' }
-  ];
+  const SUPABASE_URL = 'https://jjbjvblienjyhsjvtrll.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_dbPwE4XYV46RAaXLKZQqzQ_fhh2C-e2';
+
+  if (!global.supabase || typeof global.supabase.createClient !== 'function') {
+    console.error('TokyoTourData: supabase-js was not found. Make sure the Supabase CDN <script> tag is included before data-service.js.');
+  }
+
+  // Separate client instance from session.js's own — both talk to the
+  // same project, and supabase-js clients are safe to have multiple of.
+  const db = global.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  /** Maps a raw `trips` row onto the shape the UI already expects. */
+  function mapTripRow(row) {
+    if (!row) return null;
+    const nights = typeof row.duration_days === 'number' ? row.duration_days - 1 : null;
+    return {
+      id: row.id,
+      destination: row.destination,
+      title: row.title,
+      description: row.description,
+      start_date: row.start_date,
+      end_date: row.end_date,
+      duration: row.duration_days != null ? `${row.duration_days} Days / ${nights} Nights` : null,
+      duration_days: row.duration_days,
+      price: row.price,
+      total_seats: row.total_seats,
+      seats_available: row.seats_available,
+      image: row.image_url,
+      featured: row.featured,
+      published: row.published
+    };
+  }
 
   const TripsService = {
     async getAll() {
-      // Backend integration point:
-      //   const { data, error } = await supabase.from('trips').select('*').order('start_date');
-      //   return data;
-      return Promise.resolve(TRIPS);
+      const today = nowISO().slice(0, 10); // 'YYYY-MM-DD', matches Postgres `date` columns
+      const { data, error } = await db
+        .from('trips')
+        .select('*')
+        .eq('published', true)        // only published trips
+        .gte('start_date', today)     // ignore expired trips (already started/passed)
+        .order('start_date', { ascending: true });
+
+      if (error) {
+        console.error('TripsService.getAll: Supabase query failed:', error);
+        return Promise.reject(error);
+      }
+      return Promise.resolve((data || []).map(mapTripRow));
     },
     async getById(tripId) {
-      // Backend integration point:
-      //   const { data } = await supabase.from('trips').select('*').eq('id', tripId).single();
-      //   return data;
-      return Promise.resolve(TRIPS.find(t => t.id === tripId) || null);
+      const { data, error } = await db
+        .from('trips')
+        .select('*')
+        .eq('id', tripId)
+        .maybeSingle();
+
+      if (error) {
+        console.error('TripsService.getById: Supabase query failed:', error);
+        return Promise.reject(error);
+      }
+      return Promise.resolve(mapTripRow(data));
     }
   };
 
