@@ -915,6 +915,53 @@ textarea:focus-visible,
   line-height: 1.55;
 }
 
+.tour-card--loading {
+  pointer-events: none;
+}
+
+.tour-card__media--skeleton,
+.tour-card__skeleton-line {
+  background: linear-gradient(90deg, var(--surface-2) 25%, var(--surface) 37%, var(--surface-2) 63%);
+  background-size: 400% 100%;
+  animation: tour-card-shimmer 1.6s ease-in-out infinite;
+}
+
+.tour-card__skeleton-line {
+  height: 12px;
+  border-radius: 4px;
+  margin: 0 0 12px;
+}
+
+.tour-card__skeleton-line--title {
+  width: 70%;
+  height: 14px;
+}
+
+.tour-card__skeleton-line--meta {
+  width: 45%;
+}
+
+.tour-card__skeleton-line--desc {
+  width: 90%;
+  margin-bottom: 0;
+}
+
+@keyframes tour-card-shimmer {
+  0% { background-position: 100% 0; }
+  100% { background-position: 0 0; }
+}
+
+.tours__state {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 48px 24px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text-dim);
+  font-size: 0.9rem;
+}
+
 .tours__pagination {
   display: flex;
   justify-content: center;
@@ -3954,6 +4001,55 @@ body.no-scroll {
 /* =====================================================
    UPCOMING TRIPS (scheduled departures)
 ===================================================== */
+/* Loading skeleton for #tripsContainer while TripsService.getAll() resolves */
+.trip-card--loading {
+  pointer-events: none;
+}
+
+.trip-card__media--skeleton,
+.trip-card__skeleton-line {
+  background: linear-gradient(90deg, var(--surface-2) 25%, var(--surface) 37%, var(--surface-2) 63%);
+  background-size: 400% 100%;
+  animation: trip-card-shimmer 1.6s ease-in-out infinite;
+}
+
+.trip-card__skeleton-line {
+  height: 14px;
+  border-radius: 4px;
+}
+
+.trip-card__skeleton-line--dest {
+  width: 30%;
+  height: 10px;
+}
+
+.trip-card__skeleton-line--title {
+  width: 65%;
+  height: 20px;
+}
+
+.trip-card__skeleton-line--meta {
+  width: 85%;
+  height: 60px;
+  border-radius: 8px;
+}
+
+@keyframes trip-card-shimmer {
+  0% { background-position: 100% 0; }
+  100% { background-position: 0 0; }
+}
+
+/* Empty / error state for #tripsContainer */
+.trips-state {
+  text-align: center;
+  padding: 56px 24px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--text-dim);
+  font-size: 0.92rem;
+}
+
 .trips-section {
   max-width: var(--container);
   margin: 0 auto;

@@ -229,67 +229,11 @@
       <h2 class="section-title">Popular Tours</h2>
     </div>
 
-    <div class="tours__grid">
-
-      <article class="tour-card" data-animate="fade-up">
-        <div class="tour-card__media">
-          <img src="images/kyoto_lanterns.jpg"
-            alt="Traditional paper lanterns lining a narrow lantern-lit street in Kyoto" loading="lazy" width="1537"
-            height="1023">
-          <span class="tour-card__price">$1,240</span>
-        </div>
-        <div class="tour-card__body">
-          <h3>Tour N°1 — Kyoto Lanterns</h3>
-          <p class="tour-card__meta">7 days · ★ 4.9 · Kyoto, Japan</p>
-          <p class="tour-card__desc">Lantern-lit alleys and quiet machiya courtyards, timed for the softest evening
-            light.</p>
-          <a href="booking.html" class="btn btn--outline btn--sm">Book Now</a>
-        </div>
-      </article>
-
-      <article class="tour-card" data-animate="fade-up">
-        <div class="tour-card__media">
-          <img src="images/osaka_castle.jpg" alt="Osaka Castle's main tower rising above its stone fortress walls"
-            loading="lazy" width="1087" height="1447">
-          <span class="tour-card__price">$980</span>
-        </div>
-        <div class="tour-card__body">
-          <h3>Tour N°2 — Osaka Castle</h3>
-          <p class="tour-card__meta">5 days · ★ 4.8 · Osaka, Japan</p>
-          <p class="tour-card__desc">Feudal history and street-food nights, anchored by the castle's stone ramparts.</p>
-          <a href="booking.html" class="btn btn--outline btn--sm">Book Now</a>
-        </div>
-      </article>
-
-      <article class="tour-card" data-animate="fade-up">
-        <div class="tour-card__media">
-          <img src="images/mount_fuji.jpg" alt="Snow-capped Mount Fuji rising above the surrounding countryside"
-            loading="lazy" width="1023" height="1537">
-          <span class="tour-card__price">$1,450</span>
-        </div>
-        <div class="tour-card__body">
-          <h3>Tour N°3 — Mount Fuji</h3>
-          <p class="tour-card__meta">6 days · ★ 5.0 · Tokyo, Japan</p>
-          <p class="tour-card__desc">Timed to peak bloom — pagodas framed in pink, and picnics under the petals.</p>
-          <a href="booking.html" class="btn btn--outline btn--sm">Book Now</a>
-        </div>
-      </article>
-
-      <article class="tour-card" data-animate="fade-up">
-        <div class="tour-card__media">
-          <img src="images/hakone_mist.jpg" alt="Misty mountain landscape near Hakone with hot-spring steam rising"
-            loading="lazy" width="1086" height="1448">
-          <span class="tour-card__price">$1,120</span>
-        </div>
-        <div class="tour-card__body">
-          <h3>Tour N°4 — Hakone Mist</h3>
-          <p class="tour-card__meta">4 days · ★ 4.9 · Hakone, Japan</p>
-          <p class="tour-card__desc">Hot springs, mountain rain, and a slow cable-car climb above the clouds.</p>
-          <a href="booking.html" class="btn btn--outline btn--sm">Book Now</a>
-        </div>
-      </article>
-
-    </div>
+    <!-- Populated at runtime by initHomepageTours() in script.js, which calls
+         TokyoTourData.TripsService.getAll() (data-service.js / Supabase). Card
+         markup, classes and animations mirror the tour-card design below so the
+         section is visually identical once trips are rendered. -->
+    <div class="tours__grid" id="toursGrid" aria-live="polite" aria-busy="true"></div>
 
     <div class="tours__pagination" aria-hidden="true">
       <span class="is-active"></span>

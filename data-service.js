@@ -100,56 +100,160 @@
 
   /* =====================================================
      BOOKINGS
-     Maps to a future `bookings` table (RLS: user_id = auth.uid()).
+     Backed by the real `bookings` table (RLS: user_id =
+     auth.uid(), enforced on INSERT/SELECT/UPDATE). Both
+     create() and getForCurrentUser() talk to Supabase —
+     Dashboard integration (Phase 5B) wired up below.
   ===================================================== */
-  function bookingsKey(userId) { return `tt_bookings_${userId}`; }
+
+  /** Every error thrown out of BookingsService.create()/getForCurrentUser() is one of these —
+   *  safe, friendly text only. Raw Supabase/Postgres errors are logged to
+   *  the console but never surfaced to the UI. */
+  function bookingError(message) {
+    const err = new Error(message);
+    err.isFriendlyBookingError = true;
+    return err;
+  }
 
   const BookingsService = {
     /**
      * payload: { trip_id, adults, children, seats, coupon_code, special_requests, total_price }
-     * Returns a booking record shaped exactly like a future `bookings` row.
+     * Returns a booking record shaped like the future `bookings` row, plus a
+     * `booking_id` field the UI can show as the confirmation reference.
      */
     async create(payload) {
-      // Backend integration point:
-      //   const { data, error } = await supabase.from('bookings').insert([{
-      //     user_id: user.id, trip_id: payload.trip_id, booking_status: 'pending',
-      //     payment_status: 'unpaid', travelers: {...}, seats: payload.seats,
-      //     coupon_code: payload.coupon_code, special_requests: payload.special_requests,
-      //     total_price: payload.total_price
-      //   }]).select().single();
-      const user = global.TokyoTourSession.getUser();
-      if (!user) return Promise.reject(new Error('Cannot create a booking without an authenticated user.'));
+      if (!payload || !payload.trip_id) {
+        return Promise.reject(bookingError('Please choose a trip before booking.'));
+      }
 
-      const booking = {
-        booking_id: 'TT-' + Math.floor(100000 + Math.random() * 900000), // Supabase: use gen_random_uuid() default
-        user_id: user.id,
-        trip_id: payload.trip_id,
-        booking_status: 'pending',   // 'pending' | 'confirmed' | 'cancelled'
-        payment_status: 'unpaid',    // 'unpaid' | 'paid' | 'refunded'
-        travelers: { adults: payload.adults, children: payload.children },
-        seats: payload.seats,
-        coupon_code: payload.coupon_code || null,
-        special_requests: payload.special_requests || '',
-        total_price: payload.total_price,
-        created_at: nowISO(),
-        updated_at: nowISO()
-      };
+      const adults = Math.max(parseInt(payload.adults, 10) || 0, 1);
+      const children = Math.max(parseInt(payload.children, 10) || 0, 0);
+      const seats = Math.max(parseInt(payload.seats, 10) || (adults + children), 1);
 
-      const key = bookingsKey(user.id);
-      const list = readJSON(key, []);
-      list.push(booking);
-      writeJSON(key, list);
-      return Promise.resolve(booking);
+      // The client performing the insert must actually be signed in — this is
+      // what auth.uid() resolves to for the RLS check, so it's the source of
+      // truth for user_id (not just the locally-cached TokyoTourSession user).
+      let authUser = null;
+      try {
+        const { data: sessionData, error: sessionError } = await db.auth.getSession();
+        if (sessionError) throw sessionError;
+        authUser = sessionData && sessionData.session && sessionData.session.user;
+      } catch (err) {
+        console.error('BookingsService.create: session lookup failed:', err);
+      }
+      if (!authUser) {
+        return Promise.reject(bookingError('You need to be signed in to make a booking.'));
+      }
+
+      // Re-check live seat availability right before booking — the trip list
+      // the user picked from may be stale by the time they submit.
+      const { data: tripRow, error: tripError } = await db
+        .from('trips')
+        .select('id, price, seats_available, published')
+        .eq('id', payload.trip_id)
+        .maybeSingle();
+
+      if (tripError) {
+        console.error('BookingsService.create: trip lookup failed:', tripError);
+        return Promise.reject(bookingError("We couldn't verify this trip right now. Please try again."));
+      }
+      if (!tripRow || !tripRow.published) {
+        return Promise.reject(bookingError('This trip is no longer available.'));
+      }
+      if (seats > tripRow.seats_available) {
+        const remaining = tripRow.seats_available;
+        return Promise.reject(bookingError(
+          remaining > 0
+            ? `Only ${remaining} seat${remaining === 1 ? '' : 's'} left on this trip — please lower your seat count.`
+            : 'Sorry, this trip is fully booked.'
+        ));
+      }
+
+      const subtotal = typeof payload.subtotal === 'number' ? payload.subtotal : (tripRow.price * seats);
+      const discount = typeof payload.discount === 'number' ? payload.discount : Math.max(subtotal - (payload.total_price != null ? payload.total_price : subtotal), 0);
+      const totalPrice = payload.total_price != null ? payload.total_price : (subtotal - discount);
+
+      const { data, error } = await db
+        .from('bookings')
+        .insert([{
+          user_id: authUser.id,
+          trip_id: payload.trip_id,
+          booking_status: 'pending',   // 'pending' | 'confirmed' | 'cancelled' | 'completed'
+          payment_status: 'unpaid',    // 'unpaid' | 'paid' | 'refunded' | 'failed'
+          adults,
+          children,
+          coupon_code: payload.coupon_code || null,
+          special_requests: payload.special_requests || '',
+          subtotal,
+          discount,
+          total_price: totalPrice
+        }])
+        .select()
+        .single();
+
+      if (error) {
+        console.error('BookingsService.create: Supabase insert failed:', error);
+        // RLS violations surface as a generic Postgres error code — treat any
+        // insert failure the same way rather than leaking DB-specific detail.
+        return Promise.reject(bookingError("We couldn't complete your booking right now. Please try again."));
+      }
+
+      return Promise.resolve(mapBookingRow(data));
     },
 
+    /**
+     * Returns every booking belonging to the signed-in user, most recent
+     * first, with its related trip embedded as `.trip` (already mapped to
+     * the same shape TripsService returns). RLS restricts the underlying
+     * query to `user_id = auth.uid()` regardless, but the explicit filter
+     * below is kept too so the query's intent is obvious from the code.
+     */
     async getForCurrentUser() {
-      // Backend integration point:
-      //   const { data } = await supabase.from('bookings').select('*, trips(*)').eq('user_id', user.id).order('created_at', { ascending:false });
       const user = global.TokyoTourSession.getUser();
       if (!user) return Promise.resolve([]);
-      return Promise.resolve(readJSON(bookingsKey(user.id), []));
+
+      const { data, error } = await db
+        .from('bookings')
+        .select('*, trips(*)')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('BookingsService.getForCurrentUser: Supabase query failed:', error);
+        return Promise.reject(bookingError("We couldn't load your bookings right now. Please try again."));
+      }
+
+      return Promise.resolve((data || []).map(row => {
+        const booking = mapBookingRow(row);
+        booking.trip = mapTripRow(row.trips);
+        return booking;
+      }));
     }
   };
+
+  /** Maps a raw `bookings` row onto the shape the UI expects, adding a
+   *  short, human-friendly `booking_id` reference derived from the real
+   *  (uuid) primary key returned by Supabase — never a mock/random value. */
+  function mapBookingRow(row) {
+    if (!row) return null;
+    return {
+      id: row.id,
+      booking_id: 'TT-' + String(row.id).replace(/-/g, '').slice(0, 8).toUpperCase(),
+      user_id: row.user_id,
+      trip_id: row.trip_id,
+      booking_status: row.booking_status,
+      payment_status: row.payment_status,
+      travelers: { adults: row.adults, children: row.children },
+      seats: row.seat_quantity,
+      coupon_code: row.coupon_code,
+      special_requests: row.special_requests,
+      subtotal: row.subtotal,
+      discount: row.discount,
+      total_price: row.total_price,
+      created_at: row.created_at,
+      updated_at: row.updated_at
+    };
+  }
 
   /* =====================================================
      WISHLIST

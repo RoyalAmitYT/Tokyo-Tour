@@ -221,45 +221,9 @@
         </div>
 
         <div class="dash-booking-list" id="upcomingBookingsList">
-
-          <!-- Illustrative demo entries — real bookings created via booking.html
-             are prepended above these by dashboard.js (BookingsService).
-             Once Supabase is connected, this whole list renders from
-             BookingsService.getForCurrentUser() and these two can be removed. -->
-
-          <article class="dash-booking">
-            <img src="images/japan.jpg" alt="Path lined with vermilion torii gates at Fushimi Inari, Kyoto"
-              loading="lazy">
-            <div class="dash-booking__body">
-              <div class="dash-booking__top">
-                <h3>Kyoto Lanterns Tour</h3>
-                <span class="dash-status dash-status--confirmed">Confirmed</span>
-              </div>
-              <p class="dash-booking__meta">Oct 12 – Oct 16, 2026 · 2 Adults · Seat No. 14–15</p>
-              <p class="dash-booking__ref">Booking Reference: TT-8KX2QF</p>
-            </div>
-            <div class="dash-booking__actions">
-              <span class="dash-booking__price">$2,480</span>
-              <button class="btn btn--outline btn--sm">Manage</button>
-            </div>
-          </article>
-
-          <article class="dash-booking">
-            <img src="images/mount_fuji.jpg" alt="Mount Fuji viewed across Lake Ashi, Hakone" loading="lazy">
-            <div class="dash-booking__body">
-              <div class="dash-booking__top">
-                <h3>Hakone Mist &amp; Onsen</h3>
-                <span class="dash-status dash-status--pending">Payment Pending</span>
-              </div>
-              <p class="dash-booking__meta">Dec 3 – Dec 5, 2026 · 2 Adults · Seat No. 07</p>
-              <p class="dash-booking__ref">Booking Reference: TT-4M9P1L</p>
-            </div>
-            <div class="dash-booking__actions">
-              <span class="dash-booking__price">$780</span>
-              <button class="btn btn--primary btn--sm">Complete Payment</button>
-            </div>
-          </article>
-
+          <!-- Rendered by dashboard.js from TokyoTourData.BookingsService.getForCurrentUser(),
+             filtered to booking_status pending/confirmed. Loading, empty and
+             error states are also rendered here — see dashboard.js. -->
         </div>
       </section>
 
@@ -271,39 +235,12 @@
         </div>
 
         <div class="dash-table" id="bookingHistoryTable">
-          <!-- Completed/cancelled trips — will render from
-             BookingsService.getForCurrentUser() filtered by booking_status
-             once Supabase is connected. Demo rows kept as visual reference. -->
+          <!-- Head row stays static; body rows render below it via dashboard.js
+             from TokyoTourData.BookingsService.getForCurrentUser(), filtered to
+             booking_status completed/cancelled. Loading, empty and error states
+             are also rendered here — see dashboard.js. -->
           <div class="dash-table__row dash-table__row--head">
             <span>Tour</span><span>Dates</span><span>Amount</span><span>Status</span><span></span>
-          </div>
-          <div class="dash-table__row">
-            <span data-label="Tour">Osaka Castle &amp; Street Food</span>
-            <span data-label="Dates">Apr 4 – Apr 7, 2025</span>
-            <span data-label="Amount">$980</span>
-            <span data-label="Status"><span class="dash-status dash-status--completed">Completed</span></span>
-            <span data-label=""><button class="btn btn--outline btn--sm">Invoice</button></span>
-          </div>
-          <div class="dash-table__row">
-            <span data-label="Tour">Sakura Season, Tokyo</span>
-            <span data-label="Dates">Mar 25 – Mar 30, 2025</span>
-            <span data-label="Amount">$1,240</span>
-            <span data-label="Status"><span class="dash-status dash-status--completed">Completed</span></span>
-            <span data-label=""><button class="btn btn--outline btn--sm">Invoice</button></span>
-          </div>
-          <div class="dash-table__row">
-            <span data-label="Tour">Mount Fuji Sunrise</span>
-            <span data-label="Dates">Nov 2 – Nov 3, 2024</span>
-            <span data-label="Amount">$690</span>
-            <span data-label="Status"><span class="dash-status dash-status--completed">Completed</span></span>
-            <span data-label=""><button class="btn btn--outline btn--sm">Invoice</button></span>
-          </div>
-          <div class="dash-table__row">
-            <span data-label="Tour">Kyoto Temples &amp; Gardens</span>
-            <span data-label="Dates">Oct 8 – Oct 12, 2024</span>
-            <span data-label="Amount">$1,180</span>
-            <span data-label="Status"><span class="dash-status dash-status--cancelled">Cancelled</span></span>
-            <span data-label=""><button class="btn btn--outline btn--sm" disabled>Invoice</button></span>
           </div>
         </div>
       </section>

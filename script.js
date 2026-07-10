@@ -44,6 +44,118 @@ document.addEventListener('DOMContentLoaded', () => {
     TokyoTourSession.onAuthChange(render);
   })();
 
+  /* ---------- Homepage: Popular Tours (live Supabase data) ----------
+     No-ops automatically on any page without #toursGrid (e.g. booking,
+     dashboard), so it's safe to load everywhere. Reuses the existing
+     .tour-card markup/CSS untouched — only the data source changes. */
+  (function initHomepageTours() {
+    const grid = document.getElementById('toursGrid');
+    if (!grid) return; // not the homepage
+
+    const MAX_CARDS = 4; // preserve the original "Popular Tours" preview count
+
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+    function formatMoney(n) {
+      return '$' + Math.round(n).toLocaleString('en-US');
+    }
+
+    function renderLoading() {
+      grid.setAttribute('aria-busy', 'true');
+      grid.innerHTML = Array.from({ length: MAX_CARDS }).map(() => `
+        <article class="tour-card tour-card--loading" aria-hidden="true">
+          <div class="tour-card__media tour-card__media--skeleton"></div>
+          <div class="tour-card__body">
+            <div class="tour-card__skeleton-line tour-card__skeleton-line--title"></div>
+            <div class="tour-card__skeleton-line tour-card__skeleton-line--meta"></div>
+            <div class="tour-card__skeleton-line tour-card__skeleton-line--desc"></div>
+          </div>
+        </article>
+      `).join('');
+    }
+
+    function renderMessage(text) {
+      grid.setAttribute('aria-busy', 'false');
+      grid.innerHTML = `
+        <div class="tours__state" data-animate="fade-up">
+          <p>${escapeHtml(text)}</p>
+        </div>
+      `;
+      grid.querySelectorAll('[data-animate]').forEach(el => el.classList.add('is-in-view'));
+    }
+
+    function tourCardHTML(trip) {
+      const metaParts = [trip.duration, trip.destination].filter(Boolean);
+      const desc = trip.description || `A guided journey through ${trip.destination || 'Japan'}, crafted down to the smallest detail.`;
+      return `
+        <article class="tour-card" data-animate="fade-up">
+          <div class="tour-card__media">
+            <img src="${escapeHtml(trip.image || 'images/tokyo.jpg')}"
+              alt="${escapeHtml(trip.destination || 'Tokyo Tour')} — ${escapeHtml(trip.title || '')}" loading="lazy">
+            <span class="tour-card__price">${formatMoney(trip.price || 0)}</span>
+          </div>
+          <div class="tour-card__body">
+            <h3>${escapeHtml(trip.title || 'Untitled Tour')}</h3>
+            <p class="tour-card__meta">${escapeHtml(metaParts.join(' · '))}</p>
+            <p class="tour-card__desc">${escapeHtml(desc)}</p>
+            <a href="booking.html" class="btn btn--outline btn--sm tour-card__book" data-trip-id="${escapeHtml(trip.id)}">Book Now</a>
+          </div>
+        </article>
+      `;
+    }
+
+    function revealAndBind() {
+      const els = grid.querySelectorAll('[data-animate]:not(.is-in-view)');
+      const gridIo = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-in-view');
+            gridIo.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.15 });
+      els.forEach((el, i) => {
+        el.style.transitionDelay = (i % 4) * 0.08 + 's';
+        gridIo.observe(el);
+      });
+
+      // Carry the chosen trip over to the booking page the same way the
+      // booking page's own "Reserve Your Seat" buttons do, so Book Now
+      // deep-links straight to the right trip.
+      grid.querySelectorAll('.tour-card__book').forEach(link => {
+        link.addEventListener('click', () => {
+          const tripId = link.dataset.tripId;
+          if (tripId && window.TokyoTourSession && typeof TokyoTourSession.setPendingTripSelection === 'function') {
+            TokyoTourSession.setPendingTripSelection(tripId);
+          }
+        });
+      });
+    }
+
+    function renderTours(trips) {
+      grid.setAttribute('aria-busy', 'false');
+      grid.innerHTML = trips.slice(0, MAX_CARDS).map(tourCardHTML).join('');
+      revealAndBind();
+    }
+
+    (async function load() {
+      renderLoading();
+      try {
+        const trips = await TokyoTourData.TripsService.getAll();
+        if (!Array.isArray(trips) || trips.length === 0) {
+          renderMessage('No tours are available right now — please check back soon.');
+          return;
+        }
+        renderTours(trips);
+      } catch (err) {
+        // Never surface raw Supabase/network error details in the UI.
+        console.error('Homepage tours: failed to load trips:', err);
+        renderMessage("We couldn't load tours right now. Please refresh or try again shortly.");
+      }
+    })();
+  })();
+
   /* ---------- Loading screen ---------- */
   const loader = document.getElementById('loader');
   window.addEventListener('load', () => {
@@ -282,9 +394,17 @@ document.addEventListener('DOMContentLoaded', () => {
        (start_date, end_date, total_seats, seats_available) match the
        intended `trips` table columns. */
     let TRIPS = [];
+    let tripsLoadFailed = false;
 
     async function loadTrips() {
-      TRIPS = await TokyoTourData.TripsService.getAll();
+      try {
+        TRIPS = await TokyoTourData.TripsService.getAll();
+      } catch (err) {
+        // Never surface raw Supabase/network error details in the UI.
+        console.error('Booking page: failed to load trips:', err);
+        TRIPS = [];
+        tripsLoadFailed = true;
+      }
     }
 
     /* ---- 2. Helpers ---- */
@@ -316,6 +436,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /* ---- 3. Render Upcoming Trips (grouped by month, alternating layout) ---- */
     let cardIndex = 0; // global counter — alternation continues across months
+
+    /** Loading placeholder shown while TripsService.getAll() is in flight. */
+    function renderTripsLoading() {
+      if (!tripsContainer) return;
+      const SKELETON_COUNT = 3;
+      tripsContainer.innerHTML = Array.from({ length: SKELETON_COUNT }).map((_, i) => `
+        <article class="trip-card trip-card--loading${i % 2 === 1 ? ' trip-card--reverse' : ''}" aria-hidden="true">
+          <div class="trip-card__media trip-card__media--skeleton"></div>
+          <div class="trip-card__info">
+            <div class="trip-card__skeleton-line trip-card__skeleton-line--dest"></div>
+            <div class="trip-card__skeleton-line trip-card__skeleton-line--title"></div>
+            <div class="trip-card__skeleton-line trip-card__skeleton-line--meta"></div>
+          </div>
+        </article>
+      `).join('');
+    }
+
+    /** Shared empty/error state — never includes raw error detail. */
+    function renderTripsMessage(text) {
+      if (!tripsContainer) return;
+      tripsContainer.innerHTML = `<div class="trips-state" data-animate="fade-up">
+        <p>${escapeHtml(text)}</p>
+      </div>`;
+      tripsContainer.querySelectorAll('[data-animate]').forEach(el => el.classList.add('is-in-view'));
+    }
 
     function renderTrips() {
       if (!tripsContainer) return;
@@ -659,9 +804,15 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('modalTotal').textContent = formatMoney(booking.total_price);
 
         openModal();
-      }).catch(() => {
+      }).catch(err => {
         submitBtn && (submitBtn.disabled = false);
-        if (bkTripError) bkTripError.textContent = 'Something went wrong creating your booking. Please try again.';
+        // BookingsService.create() only ever rejects with a safe, friendly
+        // message (validation issues like sold-out seats, or a generic
+        // fallback for DB errors) — never raw Supabase/Postgres detail.
+        const message = (err && err.isFriendlyBookingError && err.message)
+          ? err.message
+          : 'Something went wrong creating your booking. Please try again.';
+        if (bkTripError) bkTripError.textContent = message;
       });
     });
 
@@ -685,8 +836,17 @@ document.addEventListener('DOMContentLoaded', () => {
     /* ---- Init ---- */
     (async function init() {
       await TokyoTourSession.ready; // make sure the real Supabase session has been checked first
+      renderTripsLoading(); // show placeholders while the live trips query is in flight
       await loadTrips(); // Backend integration point: this is the future `await supabase.from('trips').select()` call
-      renderTrips();
+
+      if (tripsLoadFailed) {
+        renderTripsMessage("We couldn't load upcoming trips right now. Please refresh or try again shortly.");
+      } else if (!TRIPS.length) {
+        renderTripsMessage('No upcoming trips are available right now — please check back soon.');
+      } else {
+        renderTrips();
+      }
+
       updateSummary();
 
       // Resume the booking flow: if the user just signed in after clicking

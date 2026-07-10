@@ -123,55 +123,142 @@ document.addEventListener('DOMContentLoaded', async () => {
     renderIdentity();
   });
 
-  /* ---------- Upcoming bookings (from BookingsService) ---------- */
-  function bookingCardHtml(booking, trip) {
-    const statusMap = {
-      pending: { cls: 'dash-status--pending', label: 'Payment Pending' },
-      confirmed: { cls: 'dash-status--confirmed', label: 'Confirmed' },
-      cancelled: { cls: 'dash-status--cancelled', label: 'Cancelled' }
-    };
-    const status = statusMap[booking.booking_status] || statusMap.pending;
+  /* ---------- Bookings: Upcoming Tours + Booking History (from BookingsService) ----------
+     Both panels are driven by a single BookingsService.getForCurrentUser() call
+     (bookings are already scoped to the signed-in user by RLS + the service's
+     own .eq('user_id', ...) filter), split locally by booking_status:
+       pending / confirmed -> Upcoming Tours
+       completed / cancelled -> Booking History               */
+
+  const BOOKING_STATUS_LABEL = {
+    pending: { cls: 'dash-status--pending', label: 'Payment Pending' },
+    confirmed: { cls: 'dash-status--confirmed', label: 'Confirmed' },
+    completed: { cls: 'dash-status--completed', label: 'Completed' },
+    cancelled: { cls: 'dash-status--cancelled', label: 'Cancelled' }
+  };
+  const PAYMENT_STATUS_LABEL = {
+    unpaid: 'Unpaid', paid: 'Paid', refunded: 'Refunded', failed: 'Payment Failed'
+  };
+
+  function escapeHtml(str) {
+    return String(str == null ? '' : str).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+  function formatMoney(n) {
+    return '$' + Math.round(n || 0).toLocaleString('en-US');
+  }
+  function formatDateRange(trip) {
+    if (!trip || !trip.start_date || !trip.end_date) return 'Dates unavailable';
+    const start = new Date(trip.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    const end = new Date(trip.end_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    return `${start} – ${end}`;
+  }
+  function formatTravelers(booking) {
+    const adults = booking.travelers.adults || 0;
+    const children = booking.travelers.children || 0;
+    const parts = [`${adults} Adult${adults === 1 ? '' : 's'}`];
+    if (children) parts.push(`${children} Child${children === 1 ? '' : 'ren'}`);
+    return parts.join(', ');
+  }
+  function bookingStatusBadge(booking) {
+    const status = BOOKING_STATUS_LABEL[booking.booking_status] || BOOKING_STATUS_LABEL.pending;
+    return `<span class="dash-status ${status.cls}">${status.label}</span>`;
+  }
+  function paymentStatusLabel(booking) {
+    return PAYMENT_STATUS_LABEL[booking.payment_status] || escapeHtml(booking.payment_status);
+  }
+
+  function bookingCardHtml(booking) {
+    const trip = booking.trip;
     const actionLabel = booking.payment_status === 'paid' ? 'Manage' : 'Complete Payment';
     const actionClass = booking.payment_status === 'paid' ? 'btn--outline' : 'btn--primary';
-    const dateRange = trip
-      ? `${new Date(trip.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – ${new Date(trip.end_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`
-      : '';
-    const travelers = `${booking.travelers.adults} Adult${booking.travelers.adults === 1 ? '' : 's'}`;
+    const destination = trip && trip.destination ? `${escapeHtml(trip.destination)} · ` : '';
 
     return `
-      <article class="dash-booking" data-booking-id="${booking.booking_id}">
-        <img src="${trip ? trip.image : 'images/japan.jpg'}" alt="${trip ? trip.title : 'Booked tour'}" loading="lazy">
+      <article class="dash-booking" data-booking-id="${escapeHtml(booking.booking_id)}">
+        <img src="${escapeHtml(trip ? trip.image : 'images/japan.jpg')}" alt="${escapeHtml(trip ? trip.title : 'Booked tour')}" loading="lazy">
         <div class="dash-booking__body">
           <div class="dash-booking__top">
-            <h3>${trip ? trip.title : 'Tour'}</h3>
-            <span class="dash-status ${status.cls}">${status.label}</span>
+            <h3>${escapeHtml(trip ? trip.title : 'Tour')}</h3>
+            ${bookingStatusBadge(booking)}
           </div>
-          <p class="dash-booking__meta">${dateRange} · ${travelers} · ${booking.seats} Seat${booking.seats === 1 ? '' : 's'}</p>
-          <p class="dash-booking__ref">Booking Reference: ${booking.booking_id}</p>
+          <p class="dash-booking__meta">${destination}${formatDateRange(trip)} · ${formatTravelers(booking)} · Payment: ${paymentStatusLabel(booking)}</p>
+          <p class="dash-booking__ref">Booking Reference: ${escapeHtml(booking.booking_id)}</p>
         </div>
         <div class="dash-booking__actions">
-          <span class="dash-booking__price">$${Math.round(booking.total_price).toLocaleString('en-US')}</span>
+          <span class="dash-booking__price">${formatMoney(booking.total_price)}</span>
           <button class="btn ${actionClass} btn--sm">${actionLabel}</button>
         </div>
       </article>`;
   }
 
-  async function renderUpcomingBookings() {
-    const list = document.getElementById('upcomingBookingsList');
-    if (!list || !window.TokyoTourData) return;
+  function historyRowHtml(booking) {
+    const trip = booking.trip;
+    const invoiceDisabled = booking.payment_status !== 'paid' ? 'disabled' : '';
+    const destination = trip && trip.destination ? escapeHtml(trip.destination) : '';
 
-    const bookings = await TokyoTourData.BookingsService.getForCurrentUser();
-    if (!bookings.length) return; // keep the illustrative demo cards already in the HTML
-
-    const withTrips = await Promise.all(bookings.map(async b => ({
-      booking: b,
-      trip: await TokyoTourData.TripsService.getById(b.trip_id)
-    })));
-
-    const html = withTrips.map(({ booking, trip }) => bookingCardHtml(booking, trip)).join('');
-    list.insertAdjacentHTML('afterbegin', html);
+    return `
+      <div class="dash-table__row" data-booking-id="${escapeHtml(booking.booking_id)}">
+        <span data-label="Tour">
+          ${escapeHtml(trip ? trip.title : 'Tour')}
+          <br><small style="color:var(--text-faint);">${destination}${destination ? ' · ' : ''}${formatTravelers(booking)} · Ref: ${escapeHtml(booking.booking_id)} · Payment: ${paymentStatusLabel(booking)}</small>
+        </span>
+        <span data-label="Dates">${formatDateRange(trip)}</span>
+        <span data-label="Amount">${formatMoney(booking.total_price)}</span>
+        <span data-label="Status">${bookingStatusBadge(booking)}</span>
+        <span data-label=""><button class="btn btn--outline btn--sm" ${invoiceDisabled}>Invoice</button></span>
+      </div>`;
   }
-  renderUpcomingBookings();
+
+  /** Shared state message (loading / empty / friendly error) — matches the
+   *  existing .dash-empty text style used elsewhere on this page. */
+  function stateMessageHtml(text) {
+    return `<p class="dash-empty" style="display:block;">${escapeHtml(text)}</p>`;
+  }
+
+  async function renderBookings() {
+    const upcomingList = document.getElementById('upcomingBookingsList');
+    const historyTable = document.getElementById('bookingHistoryTable');
+    const historyHead = historyTable ? historyTable.querySelector('.dash-table__row--head') : null;
+    if ((!upcomingList && !historyTable) || !window.TokyoTourData) return;
+
+    function setHistoryBody(html) {
+      if (!historyTable) return;
+      historyTable.querySelectorAll('.dash-table__row:not(.dash-table__row--head)').forEach(row => row.remove());
+      if (historyHead) historyHead.insertAdjacentHTML('afterend', html);
+      else historyTable.insertAdjacentHTML('beforeend', html);
+    }
+
+    if (upcomingList) upcomingList.innerHTML = stateMessageHtml('Loading your upcoming tours…');
+    setHistoryBody(stateMessageHtml('Loading your booking history…'));
+
+    let bookings;
+    try {
+      bookings = await TokyoTourData.BookingsService.getForCurrentUser();
+    } catch (err) {
+      // Never surface raw Supabase/network error details in the UI.
+      console.error('Dashboard: failed to load bookings:', err);
+      const friendly = (err && err.isFriendlyBookingError && err.message)
+        ? err.message
+        : "We couldn't load your bookings right now. Please try again.";
+      if (upcomingList) upcomingList.innerHTML = stateMessageHtml(friendly);
+      setHistoryBody(stateMessageHtml(friendly));
+      return;
+    }
+
+    const upcoming = bookings.filter(b => b.booking_status === 'pending' || b.booking_status === 'confirmed');
+    const history = bookings.filter(b => b.booking_status === 'completed' || b.booking_status === 'cancelled');
+
+    if (upcomingList) {
+      upcomingList.innerHTML = upcoming.length
+        ? upcoming.map(bookingCardHtml).join('')
+        : stateMessageHtml("You don't have any upcoming tours yet — explore our tours to book your next trip.");
+    }
+
+    setHistoryBody(history.length
+      ? history.map(historyRowHtml).join('')
+      : stateMessageHtml("You don't have any past bookings yet."));
+  }
+  renderBookings();
 
   /* ---------- Wishlist / Saved Tours (from WishlistService) ---------- */
   function miniCardHtml(item, kind) {
