@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   function renderIdentity() {
     const currentUser = TokyoTourSession.getUser();
     if (!currentUser) return; // signed out mid-session (e.g. token revoked) — guard already redirects on next check
-    const avatarUrl = currentUser.avatar_url || 'https://randomuser.me/api/portraits/women/68.jpg';
+    const avatarUrl = currentUser.avatar_url || 'images/defualt_profile_image.jpg';
     const name = currentUser.full_name || currentUser.email;
 
     const dashUserAvatar = document.getElementById('dashUserAvatar');
@@ -298,8 +298,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       btn.addEventListener('click', async () => {
         const card = btn.closest('.dash-mini-card');
         const itemId = card.dataset.id;
-        // Backend integration point: swaps to
-        // `supabase.from('wishlist_items').delete().eq('id', itemId)`.
         await TokyoTourData.WishlistService.remove(kind, itemId);
         card.style.transition = 'opacity .35s ease, transform .35s ease';
         card.style.opacity = '0';
@@ -395,11 +393,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   deleteAccountBtn && deleteAccountBtn.addEventListener('click', async () => {
     const confirmed = window.confirm('Are you sure you want to permanently delete your account? This cannot be undone.');
     if (!confirmed) return;
-    // Actual account deletion needs a privileged (service-role) call and is
-    // out of scope for this phase — auth-only. This signs the user out so
-    // the UI reflects the request; wire up real deletion in a later phase.
+    // Permanently deleting the auth.users row requires a privileged
+    // service-role call (e.g. a Supabase Edge Function), which the
+    // browser client can never hold. Until that endpoint exists, this
+    // signs the user out and hands off to support to complete removal.
     await TokyoTourSession.logout();
-    deleteAccountNote.textContent = 'Account deletion simulated — redirecting to homepage...';
+    deleteAccountNote.textContent = "You've been signed out. Please contact support to finish deleting your account.";
     deleteAccountNote.style.color = 'var(--accent-2)';
     setTimeout(() => { window.location.href = 'index.html'; }, 1200);
   });
@@ -407,6 +406,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   /* ---------- Logout ---------- */
   const logoutBtn = document.getElementById('logoutBtn');
   logoutBtn && logoutBtn.addEventListener('click', async () => {
+    await TokyoTourSession.logout();
+    window.location.href = 'index.html';
+  });
+
+  const dashTopLogoutBtn = document.getElementById('dashTopLogoutBtn');
+  dashTopLogoutBtn && dashTopLogoutBtn.addEventListener('click', async () => {
     await TokyoTourSession.logout();
     window.location.href = 'index.html';
   });

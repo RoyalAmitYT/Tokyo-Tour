@@ -28,11 +28,9 @@
   /* =====================================================
      TRIPS
      Backed by the real `trips` table in Supabase. Rows are
-     mapped onto the exact same shape the old mock TRIPS
-     array used (id, destination, title, start_date, end_date,
-     duration, price, total_seats, seats_available, image) so
-     calling code doesn't need to change until the UI is
-     wired up in a later phase.
+     mapped onto the shape the UI expects (id, destination,
+     title, start_date, end_date, duration, price,
+     total_seats, seats_available, image).
   ===================================================== */
   const SUPABASE_URL = 'https://jjbjvblienjyhsjvtrll.supabase.co';
   const SUPABASE_ANON_KEY = 'sb_publishable_dbPwE4XYV46RAaXLKZQqzQ_fhh2C-e2';
@@ -257,26 +255,27 @@
 
   /* =====================================================
      WISHLIST
-     Maps to a future `wishlist_items` table (RLS: user_id = auth.uid()).
-     Seeded with the same demo rows currently in dashboard.html so
-     the panel looks identical until Supabase is connected.
+     Not yet backed by a database table — persisted to
+     localStorage per user, seeded with the same demo rows
+     originally shown in dashboard.html. A future
+     `wishlist_items` table (RLS: user_id = auth.uid()) can
+     replace the storage calls below without changing the
+     service's public shape.
   ===================================================== */
   function wishlistKey(userId) { return `tt_wishlist_${userId}`; }
 
   const DEFAULT_WISHLIST = [
-    { id: 'wl-tokyo', name: 'Tokyo', image: 'https://commons.wikimedia.org/wiki/Special:FilePath/Shibuya,_Tokyo,_from_Above.jpg?width=500' },
-    { id: 'wl-osaka', name: 'Osaka', image: 'https://commons.wikimedia.org/wiki/Special:FilePath/Osaka_Castle_01bs3200.jpg?width=500' },
-    { id: 'wl-fuji', name: 'Mount Fuji', image: 'https://commons.wikimedia.org/wiki/Special:FilePath/Lake_Kawaguchiko_Sakura_Mount_Fuji_3.JPG?width=500' }
+    { id: 'wl-tokyo', name: 'Tokyo', image: 'images/tokyo.jpg' },
+    { id: 'wl-osaka', name: 'Osaka', image: 'images/Osaka.jpg' },
+    { id: 'wl-fuji', name: 'Mount Fuji', image: 'images/mount_fuji.jpg' }
   ];
   const DEFAULT_SAVED = [
-    { id: 'sv-kyoto-lanterns', name: 'Kyoto Lanterns Tour', image: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=600&auto=format&fit=crop' },
-    { id: 'sv-sakura-tokyo', name: 'Sakura Season, Tokyo', image: 'https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?q=80&w=600&auto=format&fit=crop' }
+    { id: 'sv-kyoto-lanterns', name: 'Kyoto Lanterns Tour', image: 'images/kyoto_lanterns.jpg' },
+    { id: 'sv-sakura-tokyo', name: 'Sakura Season, Tokyo', image: 'images/tokyo.jpg' }
   ];
 
   const WishlistService = {
     async getForCurrentUser(kind /* 'wishlist' | 'saved' */) {
-      // Backend integration point:
-      //   const { data } = await supabase.from('wishlist_items').select('*').eq('user_id', user.id).eq('kind', kind);
       const user = global.TokyoTourSession.getUser();
       if (!user) return Promise.resolve([]);
       const key = `${wishlistKey(user.id)}_${kind}`;
@@ -289,8 +288,6 @@
       return Promise.resolve(seeded);
     },
     async remove(kind, itemId) {
-      // Backend integration point:
-      //   await supabase.from('wishlist_items').delete().eq('id', itemId).eq('user_id', user.id);
       const user = global.TokyoTourSession.getUser();
       if (!user) return Promise.resolve();
       const key = `${wishlistKey(user.id)}_${kind}`;

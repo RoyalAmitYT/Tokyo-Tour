@@ -1,6 +1,8 @@
 /* =====================================================
    TOKYO TOUR — script.js
-   Frontend-only. Clean, backend-ready hooks.
+   Site-wide UI behavior (navigation, homepage, booking page).
+   Trip and session data come from TokyoTourData / TokyoTourSession
+   (data-service.js / session.js), both backed by Supabase.
 ===================================================== */
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -10,6 +12,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function render(user) {
       const loggedIn = !!user;
+      // isAdmin() reflects the same cached JWT claim as `user` — both are
+      // refreshed together by session.js before this fires, so it's safe
+      // to read synchronously here regardless of which triggered render().
+      const isAdmin = loggedIn && !!(window.TokyoTourSession.isAdmin && TokyoTourSession.isAdmin());
       const loginLink = document.getElementById('headerLoginLink');
       const registerLink = document.getElementById('headerRegisterLink');
       const dashboardLink = document.getElementById('headerDashboardLink');
@@ -21,11 +27,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (loginLink) loginLink.style.display = loggedIn ? 'none' : '';
       if (registerLink) registerLink.style.display = loggedIn ? 'none' : '';
-      if (dashboardLink) dashboardLink.style.display = loggedIn ? '' : 'none';
+      if (dashboardLink) {
+        dashboardLink.style.display = loggedIn ? '' : 'none';
+        dashboardLink.textContent = isAdmin ? 'Admin Panel' : 'Dashboard';
+        dashboardLink.href = isAdmin ? 'admin.html' : 'dashboard.html';
+      }
       if (logoutLink) logoutLink.style.display = loggedIn ? '' : 'none';
       if (mobileLoginItem) mobileLoginItem.style.display = loggedIn ? 'none' : '';
       if (mobileRegisterItem) mobileRegisterItem.style.display = loggedIn ? 'none' : '';
-      if (mobileDashboardItem) mobileDashboardItem.style.display = loggedIn ? '' : 'none';
+      if (mobileDashboardItem) {
+        mobileDashboardItem.style.display = loggedIn ? '' : 'none';
+        const mobileDashboardLink = mobileDashboardItem.querySelector('a');
+        if (mobileDashboardLink) {
+          mobileDashboardLink.textContent = isAdmin ? 'Admin Panel' : 'Dashboard';
+          mobileDashboardLink.href = isAdmin ? 'admin.html' : 'dashboard.html';
+        }
+      }
       if (mobileLogoutItem) mobileLogoutItem.style.display = loggedIn ? '' : 'none';
     }
 
@@ -276,12 +293,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 4000);
   }
 
-  /* ---------- Watch film button (placeholder — hook up real video later) ---------- */
-  const playVideoBtn = document.getElementById('playVideoBtn');
-  playVideoBtn && playVideoBtn.addEventListener('click', () => {
-    console.log('TODO: open film modal / lightbox video player');
-  });
-
   /* ---------- Testimonials: auto-playing slider ---------- */
   const testiTrack = document.getElementById('testiTrack');
   const testiDotsWrap = document.getElementById('testiDots');
@@ -347,22 +358,20 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  /* ---------- Contact form (frontend-only — backend integration point) ---------- */
+  /* ---------- Contact form (not yet wired to an email/API backend) ---------- */
   const contactForm = document.getElementById('contactForm');
   const contactFormNote = document.getElementById('contactFormNote');
   contactForm && contactForm.addEventListener('submit', (e) => {
     e.preventDefault();
-    // Backend integration point: POST form data to your API / email service here.
     contactFormNote.textContent = 'Thanks — your message has been noted. Our team will reply within 24 hours.';
     contactForm.reset();
   });
 
-  /* ---------- Newsletter form (frontend-only — backend integration point) ---------- */
+  /* ---------- Newsletter form (not yet wired to a mailing-list provider) ---------- */
   const newsletterForm = document.getElementById('newsletterForm');
   const newsletterNote = document.getElementById('newsletterNote');
   newsletterForm && newsletterForm.addEventListener('submit', (e) => {
     e.preventDefault();
-    // Backend integration point: POST email to your newsletter provider here.
     newsletterNote.textContent = "You're on the list — welcome aboard!";
     newsletterForm.reset();
   });
@@ -373,11 +382,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /* =====================================================
      ---------- Booking page: Upcoming Trips + Reserve flow ----------
-     Frontend-only. Trip data is structured as plain JS objects so it
-     can be swapped for a Firebase Firestore collection later — just
-     replace TRIPS with data fetched from Firestore and keep the same
-     field names. No-ops automatically on any page without these
-     elements (e.g. the homepage), so it's safe to load everywhere.
+     Trip data comes from TokyoTourData.TripsService (Supabase-backed).
+     No-ops automatically on any page without these elements (e.g. the
+     homepage), so it's safe to load everywhere.
   ===================================================== */
   initBookingPage();
 
@@ -780,12 +787,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const submitBtn = bookingForm.querySelector('.auth-submit');
       submitBtn && (submitBtn.disabled = true);
 
-      // Backend integration point: this now goes through BookingsService.create()
-      // (data-service.js), which is the single place that will be swapped to
-      // `supabase.from('bookings').insert(...)`. The returned record already
-      // maps 1:1 to the intended `bookings` table columns: booking_id, user_id,
-      // trip_id, booking_status, payment_status, travelers, total_price,
-      // created_at, updated_at.
+      // BookingsService.create() (data-service.js) performs the real
+      // Supabase insert and returns the booking already mapped to this
+      // page's field names.
       TokyoTourData.BookingsService.create({
         trip_id: selectedTrip.id,
         adults, children, seats,
@@ -837,7 +841,7 @@ document.addEventListener('DOMContentLoaded', () => {
     (async function init() {
       await TokyoTourSession.ready; // make sure the real Supabase session has been checked first
       renderTripsLoading(); // show placeholders while the live trips query is in flight
-      await loadTrips(); // Backend integration point: this is the future `await supabase.from('trips').select()` call
+      await loadTrips(); // live Supabase query via TripsService.getAll()
 
       if (tripsLoadFailed) {
         renderTripsMessage("We couldn't load upcoming trips right now. Please refresh or try again shortly.");

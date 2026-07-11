@@ -14,9 +14,7 @@
    the Guest/Authenticated nav state are all driven by
    Supabase's own onAuthStateChange listener.
 
-   Session user shape returned by getUser() (unchanged
-   from the previous mock, so calling code didn't need to
-   change shape):
+   Session user shape returned by getUser():
    {
      id:          string (uuid)   -> auth.users.id
      email:       string
@@ -53,6 +51,7 @@
 
   /* ---------- internal cached auth state ---------- */
   let cachedUser = null;       // merged auth.users + profiles record, synchronously readable
+  let cachedIsAdmin = false;   // derived from the signed-in JWT's app_metadata.role — never user-editable
   const listeners = [];        // functions to call whenever cachedUser changes
 
   function notify() {
@@ -99,9 +98,13 @@
   }
 
   async function refreshCachedUser(authUser) {
-    if (!authUser) { cachedUser = null; return null; }
+    if (!authUser) { cachedUser = null; cachedIsAdmin = false; return null; }
     const profile = await fetchProfile(authUser.id);
     cachedUser = mapUser(authUser, profile);
+    // Admin status lives in the JWT's app_metadata (set server-side only —
+    // RLS's is_admin() reads this same claim), never in user-editable
+    // profiles/user_metadata, so it can't be self-granted from the client.
+    cachedIsAdmin = !!(authUser.app_metadata && authUser.app_metadata.role === 'admin');
     return cachedUser;
   }
 
@@ -162,6 +165,14 @@
       return !!cachedUser;
     },
 
+    /** True if the signed-in user's JWT carries app_metadata.role === 'admin'.
+     *  This is the same claim the database's is_admin() RLS check reads, so
+     *  it can never be spoofed from the client — only ever gated by what
+     *  Supabase actually issued the user's token with. */
+    isAdmin() {
+      return cachedIsAdmin;
+    },
+
     /** Register a callback that fires with the current user (or null)
      *  whenever auth state changes (sign in, sign out, token refresh). */
     onAuthChange(fn) {
@@ -179,8 +190,7 @@
 
     /* =================================================
        AUTH ACTIONS
-       All return { user, error } — same shape the mock
-       version returned, so calling code doesn't change.
+       All return { user, error }.
     ================================================= */
 
     async login(email, password) {
@@ -216,6 +226,34 @@
 
       // Email confirmation is ON — no session yet until the user verifies.
       return { user: null, error: null, needsEmailConfirmation: true };
+    },
+
+    /** Starts Google OAuth via Supabase (`signInWithOAuth`). This is a
+     *  full-page redirect to Google on success — the browser leaves this
+     *  page immediately, so there's no user to return here. This only
+     *  resolves with an error if something stopped the redirect from even
+     *  starting (Google provider not configured, network error, etc).
+     *
+     *  redirectTo defaults to the current page's full URL (query string
+     *  included), so an existing `?redirect=...` param survives the round
+     *  trip to Google and back, and the page's own "already authenticated"
+     *  landing check (see auth.js) can reuse getRedirectParam()/isAdmin()
+     *  to route the user on, exactly like a fresh email/password sign-in.
+     *
+     *  First-time Google sign-ins get a profile row exactly the way
+     *  email/password sign-ups do — the same `on_auth_user_created` DB
+     *  trigger fires for every new auth.users row regardless of provider,
+     *  and refreshCachedUser()'s fetchProfile() call picks it up once the
+     *  session lands back here. Returning Google users are matched to
+     *  their existing account by email automatically (Supabase's default
+     *  behavior), so no duplicate profile is ever created. */
+    async loginWithGoogle(redirectTo) {
+      const { error } = await client.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: redirectTo || window.location.href }
+      });
+      if (error) return { error: friendlyError(error) };
+      return { error: null };
     },
 
     async logout() {
@@ -276,6 +314,25 @@
       const target = currentPage || (location.pathname.split('/').pop() || 'index.html');
       window.location.replace('login.html?redirect=' + encodeURIComponent(target));
       return false;
+    },
+
+    /** Same as requireAuth(), plus an admin check. Guests are sent to Login
+     *  (and return here afterwards); signed-in non-admins are quietly sent
+     *  to their own Dashboard rather than shown an access-denied page, since
+     *  the Admin Panel isn't something a regular account should ever see a
+     *  trace of. */
+    async requireAdmin(currentPage) {
+      await this.ready;
+      if (!this.isAuthenticated()) {
+        const target = currentPage || (location.pathname.split('/').pop() || 'index.html');
+        window.location.replace('login.html?redirect=' + encodeURIComponent(target));
+        return false;
+      }
+      if (!this.isAdmin()) {
+        window.location.replace('dashboard.html');
+        return false;
+      }
+      return true;
     },
 
     /** Reads the `?redirect=` query param set by requireAuth() / the booking-guard flow. */

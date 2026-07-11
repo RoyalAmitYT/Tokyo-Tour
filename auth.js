@@ -1,8 +1,9 @@
 /* =====================================================
    TOKYO TOUR — auth.js
-   Frontend-only validation for Login / Register pages.
-   No backend, API or database — hooks are marked below
-   for future integration.
+   Client-side form validation for Login / Register.
+   Auth actions themselves (login, register, Google OAuth,
+   password reset) are delegated to TokyoTourSession
+   (session.js), which is backed by real Supabase Auth.
 ===================================================== */
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -89,7 +90,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         // Return the user to wherever they were headed before the auth guard
         // intercepted them (e.g. back to booking.html to finish a reservation).
-        const redirectTarget = TokyoTourSession.getRedirectParam() || 'dashboard.html';
+        // Absent that, admins land on the Admin Panel and everyone else on
+        // their Dashboard — isAdmin() reflects the JWT claim refreshed by
+        // the login() call just above, so it's accurate here.
+        const redirectTarget = TokyoTourSession.getRedirectParam()
+          || (TokyoTourSession.isAdmin() ? 'admin.html' : 'dashboard.html');
         loginNote.textContent = 'Signed in! Redirecting...';
         loginNote.style.color = 'var(--accent-2)';
         setTimeout(() => { window.location.href = redirectTarget; }, 700);
@@ -100,7 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
     emailInput.addEventListener('input', () => setError('li-email-field', 'li-email-error', ''));
     passwordInput.addEventListener('input', () => setError('li-password-field', 'li-password-error', ''));
 
-    /* ---------- Forgot password (frontend-only simulation) ---------- */
+    /* ---------- Forgot password ---------- */
     const forgotToggle = document.getElementById('forgotPasswordToggle');
     const forgotPanel = document.getElementById('forgotPasswordPanel');
     const forgotSend = document.getElementById('forgotPasswordSend');
@@ -128,12 +133,20 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
 
-    /* ---------- Google login (UI only) ---------- */
+    /* ---------- Google login ---------- */
     const googleLoginBtn = document.getElementById('googleLoginBtn');
-    googleLoginBtn && googleLoginBtn.addEventListener('click', () => {
-      // Backend integration point: kick off OAuth flow with your provider here.
-      loginNote.textContent = 'Google sign-in is not connected in this preview.';
+    googleLoginBtn && googleLoginBtn.addEventListener('click', async () => {
+      googleLoginBtn.disabled = true;
+      loginNote.textContent = 'Redirecting to Google…';
       loginNote.style.color = 'var(--text-dim)';
+      const { error } = await TokyoTourSession.loginWithGoogle();
+      if (error) {
+        // Only reached if the redirect itself couldn't start — on success
+        // the browser has already navigated away to Google.
+        googleLoginBtn.disabled = false;
+        loginNote.textContent = error;
+        loginNote.style.color = '#ff7a6b';
+      }
     });
   }
 
@@ -263,12 +276,62 @@ document.addEventListener('DOMContentLoaded', () => {
     confirmInput.addEventListener('input', () => setError('rg-confirm-field', 'rg-confirm-error', ''));
     termsInput.addEventListener('change', () => setError('rg-terms-field', 'rg-terms-error', ''));
 
-    /* ---------- Google register (UI only) ---------- */
+    /* ---------- Google register ---------- */
     const googleRegisterBtn = document.getElementById('googleRegisterBtn');
-    googleRegisterBtn && googleRegisterBtn.addEventListener('click', () => {
-      // Backend integration point: kick off OAuth flow with your provider here.
-      registerNote.textContent = 'Google sign-up is not connected in this preview.';
+    googleRegisterBtn && googleRegisterBtn.addEventListener('click', async () => {
+      googleRegisterBtn.disabled = true;
+      registerNote.textContent = 'Redirecting to Google…';
       registerNote.style.color = 'var(--text-dim)';
+      const { error } = await TokyoTourSession.loginWithGoogle();
+      if (error) {
+        googleRegisterBtn.disabled = false;
+        registerNote.textContent = error;
+        registerNote.style.color = '#ff7a6b';
+      }
+    });
+  }
+
+  /* ================= GOOGLE OAUTH LANDING (Login + Register) =================
+     signInWithOAuth() above is a full-page redirect, so there's no promise
+     to await for "the user finished signing in with Google" — instead,
+     Google/Supabase send the browser BACK to this exact page afterwards.
+     supabase-js's detectSessionInUrl (already on in session.js) turns that
+     return trip into a real session before `TokyoTourSession.ready`
+     resolves, so this runs on every load of Login/Register and simply asks:
+     are we authenticated yet? If so — whether that's from finishing Google
+     OAuth just now, or an existing session from an earlier visit — route
+     onward exactly like a fresh email/password sign-in does. This never
+     runs on any other page, and never touches the email/password form
+     logic above. */
+  if (window.TokyoTourSession && (loginForm || registerForm)) {
+    const landingNote = loginForm
+      ? document.getElementById('loginNote')
+      : document.getElementById('registerNote');
+
+    // Google/Supabase report OAuth problems (the user cancelled the consent
+    // screen, access was denied, etc.) as ?error=...&error_description=...
+    // on the way back — never a JS exception, since the whole flow is a
+    // full-page redirect. Surface a friendly note once, then tidy the URL.
+    const queryParams = new URLSearchParams(window.location.search);
+    const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+    const oauthError = queryParams.get('error_description') || queryParams.get('error')
+      || hashParams.get('error_description') || hashParams.get('error');
+
+    if (oauthError && landingNote) {
+      landingNote.textContent = /access_denied|cancel/i.test(oauthError)
+        ? 'Google sign-in was cancelled.'
+        : "We couldn't sign you in with Google. Please try again.";
+      landingNote.style.color = '#ff7a6b';
+      const preservedRedirect = TokyoTourSession.getRedirectParam();
+      const cleanUrl = window.location.pathname + (preservedRedirect ? ('?redirect=' + encodeURIComponent(preservedRedirect)) : '');
+      history.replaceState(null, '', cleanUrl);
+    }
+
+    TokyoTourSession.ready.then(() => {
+      if (!TokyoTourSession.isAuthenticated()) return;
+      const target = TokyoTourSession.getRedirectParam()
+        || (TokyoTourSession.isAdmin() ? 'admin.html' : 'dashboard.html');
+      window.location.replace(target);
     });
   }
 

@@ -2855,6 +2855,63 @@ textarea:focus-visible,
   gap: 26px
 }
 
+/* === Auth Typography Readability Enhancements (Register & Login) ===
+   Scoped to .auth-body so booking/contact/dashboard forms, which also
+   use .form-field, .auth-checkbox etc., are left untouched. */
+.auth-body .auth__subtitle {
+  font-size: 0.98rem;
+}
+
+.auth-body .form-field label {
+  font-size: 0.86rem;
+}
+
+.auth-body .form-field input,
+.auth-body .form-field textarea,
+.auth-body .auth-form select {
+  font-size: 1rem;
+}
+
+.auth-body .form-field input::placeholder {
+  font-size: 1rem;
+}
+
+.auth-body .form-error {
+  font-size: 0.85rem;
+}
+
+.auth-body .auth-checkbox {
+  font-size: 0.94rem;
+}
+
+.auth-body .auth-forgot {
+  font-size: 0.9rem;
+}
+
+.auth-body .auth-forgot-panel p {
+  font-size: 0.9rem;
+}
+
+.auth-body .auth-forgot-panel__row input {
+  font-size: 0.92rem;
+}
+
+.auth-body .auth-form__note {
+  font-size: 0.9rem;
+}
+
+.auth-body .auth-divider {
+  font-size: 0.82rem;
+}
+
+.auth-body .auth-google {
+  font-size: 0.94rem;
+}
+
+.auth-body .auth-switch {
+  font-size: 0.97rem;
+}
+
 
 /* =====================================================
    BOOKING PAGE
@@ -3286,6 +3343,40 @@ body.no-scroll {
   display: grid;
   grid-template-columns: 280px 1fr;
   min-height: 100vh;
+}
+
+/* -- utility nav bar (Back to Site / View Website + Logout) -- */
+.dash-util-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px var(--gutter);
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+}
+
+.dash-util-nav__back,
+.dash-util-nav__logout {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  background: none;
+  border: none;
+  transition: color .3s var(--ease);
+}
+
+.dash-util-nav__back:hover {
+  color: var(--accent);
+}
+
+.dash-util-nav__logout:hover {
+  color: #ff7a6b;
 }
 
 /* -- sidebar -- */
@@ -4330,4 +4421,56 @@ body.no-scroll {
   .trip-card__meta {
     grid-template-columns: 1fr;
   }
+}
+
+/* =====================================================
+   ADMIN PANEL (Phase 6A)
+   Additive only — reuses every existing design token,
+   .dash-* component, .btn, .form-field, .auth-form and
+   .modal class untouched above. Nothing here redesigns
+   an existing rule; these are two small new variants the
+   Admin Panel needs that the user Dashboard never did.
+===================================================== */
+
+/* Panel head with an action button (e.g. "+ Add Trip") beside the title,
+   instead of the default stacked heading/subtitle. */
+.dash__panel-head--row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.dash__panel-head--row .dash__panel-head-text {
+  margin: 0;
+}
+
+/* Wider, left-aligned modal variant for data-entry forms (Add/Edit Trip),
+   as opposed to the narrow centered confirmation-style .modal__panel. */
+.modal__panel--wide {
+  max-width: 640px;
+  text-align: left;
+}
+
+.modal__panel--wide .modal__actions {
+  margin-top: 4px;
+}
+
+/* Small inline action-button groups inside a .dash-table cell (Trips /
+   Bookings row actions: Edit, Publish/Unpublish, Delete, status select). */
+.dash-table__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.dash-table__actions select {
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 6px 10px;
+  color: var(--text);
+  font-size: 0.78rem;
 }

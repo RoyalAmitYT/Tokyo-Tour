@@ -24,12 +24,6 @@
   <meta name="twitter:description" content="Manage your bookings, wishlist and account details.">
   <meta name="twitter:image" content="https://www.tokyotour.travel/images/japan_torri_gate.jpg">
 
-  <!-- Favicons (placeholders — see summary) -->
-  <link rel="icon" href="favicon.ico" sizes="any">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-  <link rel="apple-touch-icon" href="apple-touch-icon.png">
-
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
@@ -59,6 +53,12 @@
     })();
   </script>
 
+  <!-- ================= UTILITY NAV ================= -->
+  <div class="dash-util-nav">
+    <a href="index.html" class="dash-util-nav__back"><span aria-hidden="true">←</span> Back to Site</a>
+    <button type="button" class="dash-util-nav__logout" id="dashTopLogoutBtn">Logout</button>
+  </div>
+
   <div class="dash">
 
     <!-- ================= SIDEBAR ================= -->
@@ -69,7 +69,7 @@
       </a>
 
       <div class="dash__user">
-        <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="" class="dash__user-avatar"
+        <img src="images/defualt_profile_image.jpg" alt="" class="dash__user-avatar"
           id="dashUserAvatar">
         <div>
           <p class="dash__user-name" id="dashUserName">Sarah Bennett</p>
@@ -164,7 +164,7 @@
 
         <div class="dash-card dash-profile">
           <div class="dash-profile__top">
-            <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="" class="dash-profile__avatar"
+            <img src="images/defualt_profile_image.jpg" alt="" class="dash-profile__avatar"
               id="profileAvatar">
             <div>
               <h3 id="profileNameHeading">Sarah Bennett</h3>
