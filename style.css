@@ -2085,6 +2085,11 @@ textarea:focus-visible,
 }
 
 @media (max-width:900px) {
+  .hero {
+    height: 86vh;
+    min-height: 580px;
+  }
+
   .hero__content {
     margin-top: 130px;
   }
@@ -2095,6 +2100,7 @@ textarea:focus-visible,
 
   .hero__img {
     object-position: 50% 38%;
+    transform: scale(1.04);
   }
 
   .inspire {
@@ -2166,6 +2172,11 @@ textarea:focus-visible,
     gap: 12px;
   }
 
+  .hero {
+    height: 78vh;
+    min-height: 520px;
+  }
+
   .hero__footnote {
     grid-template-columns: 1fr;
     gap: 26px;
@@ -2189,6 +2200,7 @@ textarea:focus-visible,
 
   .hero__img {
     object-position: 50% 34%;
+    transform: scale(1.02);
   }
 
   .hero__eyebrow {
@@ -2742,27 +2754,46 @@ textarea:focus-visible,
 
 @media (max-width:900px) {
   .auth {
-    grid-template-columns: 1fr;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: stretch;
+    height: auto;
+    overflow: visible;
   }
 
   .auth__visual {
-    min-height: 220px;
-    padding: 28px;
+    position: relative;
+    inset: auto;
+    width: 100%;
+    height: 42vh;
+    min-height: 260px;
+    max-height: 380px;
+    padding: 0;
+  }
+
+  .auth__visual-img {
+    object-position: 50% 38%;
   }
 
   .auth__panel {
-    padding: 44px var(--gutter);
+    padding: 44px var(--gutter) 56px;
   }
 }
 
 @media (max-width:640px) {
   .auth__visual {
-    min-height: 170px;
-    padding: 22px;
+    height: 30vh;
+    min-height: 190px;
+    max-height: 280px;
+    padding: 0;
+  }
+
+  .auth__visual-img {
+    object-position: 50% 32%;
   }
 
   .auth__panel {
-    padding: 36px var(--gutter) 56px;
+    padding: 32px var(--gutter) 56px;
   }
 
   .auth-form__row--2col {
